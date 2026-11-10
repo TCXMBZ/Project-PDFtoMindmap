@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MindMap AI – Prototype Launcher & Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #6558E8;
+      --primary-hover: #5548D8;
+      --primary-light: #F0EFFF;
+      --secondary: #8B7CF6;
+      --background: #F7F8FC;
+      --surface: #FFFFFF;
+      --text-primary: #202033;
+      --text-secondary: #85859A;
+      --border: #E9E9F1;
+      --success: #18A979;
+      --warning: #F4AD43;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Sarabun', 'Inter', -apple-system, sans-serif;
+      background-color: var(--background);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding-bottom: 60px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header Nav */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(101, 88, 232, 0.25);
+    }
+    .logo-text h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .logo-text span {
+      color: var(--primary);
+    }
+    .logo-text p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .server-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: #F0EFFF;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      border: 1px solid rgba(101, 88, 232, 0.2);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      display: inline-block;
+      box-shadow: 0 0 0 3px rgba(24, 169, 121, 0.2);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F7F8FC 100%);
+      padding: 48px 0 36px 0;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .hero h2 {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.5px;
+      max-width: 800px;
+      margin: 0 auto 12px auto;
+    }
+    .hero p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 650px;
+      margin: 0 auto 28px auto;
+    }
+    .cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(101, 88, 232, 0.3);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(101, 88, 232, 0.4);
+    }
+    .btn-secondary {
+      background: white;
+      color: var(--text-primary);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      background: #F7F8FC;
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Quick Launch Grid */
+    .section-title {
+      margin: 40px 0 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .section-title h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .section-title span {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+    }
+    .page-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-col: column;
+      justify-content: space-between;
+      position: relative;
+    }
+    .page-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 28px rgba(101, 88, 232, 0.08);
+    }
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+    .card-link {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: auto;
+    }
+    .page-card:hover .card-link {
+      color: var(--primary-hover);
+    }
+
+    /* Interactive Preview Box */
+    .preview-box {
+      margin-top: 40px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+    }
+    .preview-header h4 {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .mindmap-diagram {
+      background: #FAFAFD;
+      border-radius: 16px;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      border: 1px dashed var(--border);
+      overflow-x: auto;
+    }
+    .node-root {
+      background: var(--primary);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 4px 14px rgba(101, 88, 232, 0.35);
+    }
+    .branch-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .node-branch {
+      background: var(--secondary);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(139, 124, 246, 0.25);
+    }
+    .subtopic-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .node-subtopic {
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* Instruction guide */
+    .guide-box {
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 16px;
+      background: #F0EFFF;
+      border: 1px solid rgba(101, 88, 232, 0.2);
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .guide-icon {
+      font-size: 24px;
+      background: white;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      shrink-0;
+    }
+    .guide-content h5 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .guide-content p {
+      font-size: 12px;
+      color: #4A4A68;
+    }
+    .guide-content code {
+      background: white;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-family: monospace;
+      color: var(--primary);
+      font-weight: 600;
+      border: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="container header-content">
+      <a href="http://localhost:3000/dashboard" target="_blank" class="logo">
+        <div class="logo-icon">🧠</div>
+        <div class="logo-text">
+          <h1>MindMap <span>AI</span></h1>
+          <p>AI-Powered Learning Platform</p>
+        </div>
+      </a>
+
+      <div class="server-status" id="statusBadge">
+        <span class="status-dot"></span>
+        <span id="statusText">เซิร์ฟเวอร์พร้อมใช้งาน (Port 3000)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="badge">
+        ✨ โครงงานระดับ ปวส.2 • แผนกวิชาเทคโนโลยีสารสนเทศ
+      </div>
+      <h2>เว็บแอปพลิเคชันสำหรับสรุปรายงานในรูปแบบแผนผังความคิดด้วย AI</h2>
+      <p>
+        ระบบสรุปเนื้อหาเอกสารการเรียนการสอน (PDF, DOCX, TXT) ด้วย AI และสร้างแผนผังความคิด (Mind Map) แบบโต้ตอบได้ พร้อมระบบแบบทดสอบและบัตรคำอัจฉริยะ
+      </p>
+
+      <div class="cta-group">
+        <a href="http://localhost:3000/dashboard" target="_blank" class="btn btn-primary">
+          🚀 เปิด Dashboard หลัก (Next.js) ➔
+        </a>
+        <a href="http://localhost:3000/mindmaps/mm-1" target="_blank" class="btn btn-secondary">
+          🎨 เปิด Mind Map Editor
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Grid Content -->
+  <main class="container">
+    <div class="section-title">
+      <div>
+        <h3>หน้าระบบทั้งหมด (Quick Navigation)</h3>
+        <span>คลิกการ์ดด้านล่างเพื่อเปิดหน้าต่างนั้นบนเบราว์เซอร์ได้ทันที</span>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <!-- 1. Dashboard -->
+      <a href="http://localhost:3000/dashboard" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #F0EFFF; color: #6558E8;">📊</div>
+          <div class="card-title">1. Dashboard</div>
+          <div class="card-desc">สถิติภาพรวม 4 ด้าน, กราฟแสดงแนวโน้มการเรียนรู้ (Recharts), เอกสารล่าสุด และรายการแผนผังความคิด</div>
+        </div>
+        <div class="card-link">เปิดหน้า Dashboard ➔</div>
+      </a>
+
+      <!-- 2. Documents -->
+      <a href="http://localhost:3000/documents" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #EFF6FF; color: #3B82F6;">📁</div>
+          <div class="card-title">2. My Documents</div>
+          <div class="card-desc">คลังจัดเก็บเอกสารทั้งหมด พร้อมระบบค้นหา ฟิลเตอร์นามสกุล (.pdf, .docx, .txt) และสลับมุมมอง Grid / List</div>
+        </div>
+        <div class="card-link">เปิดคลังเอกสาร ➔</div>
+      </a>
+
+      <!-- 3. Upload -->
+      <a href="http://localhost:3000/documents/upload" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #ECFDF5; color: #18A979;">📤</div>
+          <div class="card-title">3. Document Upload</div>
+          <div class="card-desc">ระบบลากและวางไฟล์ (Drag & Drop) พร้อมแถบแสดง Progress Bar จำลองสถานะ และปุ่มเริ่มการวิเคราะห์</div>
+        </div>
+        <div class="card-link">เปิดหน้าอัปโหลด ➔</div>
+      </a>
+
+      <!-- 4. Analyzer -->
+      <a href="http://localhost:3000/documents/doc-1/analyze" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #FFFBEB; color: #F59E0B;">🔍</div>
+          <div class="card-title">4. Document Analyzer</div>
+          <div class="card-desc">แบ่ง 2 ฝั่ง: ฝั่งซ้ายเปิดอ่านและซูมเอกสาร ฝั่งขวาผลสรุป AI (Overview, Main Topics, Keywords)</div>
+        </div>
+        <div class="card-link">เปิดหน้าวิเคราะห์ ➔</div>
+      </a>
+
+      <!-- 5. Mind Map Editor -->
+      <a href="http://localhost:3000/mindmaps/mm-1" target="_blank" class="page-card" style="border: 2px solid var(--primary); background: #FAF9FF;">
+        <div>
+          <div class="card-icon" style="background: #6558E8; color: white;">🧠</div>
+          <div class="card-title">5. Mind Map Editor</div>
+          <div class="card-desc"><strong>หน้าหัวใจสำคัญ:</strong> แคนวาส React Flow ลากโหนดได้จริง, ซูมเข้าออก, จัดการกิ่งหลัก-ย่อย, ส่งออก PNG/PDF</div>
+        </div>
+        <div class="card-link">เปิด Mind Map Editor ➔</div>
+      </a>
+
+      <!-- 6. AI Chat -->
+      <a href="http://localhost:3000/chat" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #F3E8FF; color: #9333EA;">💬</div>
+          <div class="card-title">6. AI Chat</div>
+          <div class="card-desc">ผู้ช่วยแชทอัจฉริยะประมวลผลข้อความเอกสาร พร้อมคำถามด่วนแนะนำ และตัวอย่างโค้ดคำสั่ง SQL สวยงาม</div>
+        </div>
+        <div class="card-link">เปิดห้องแชท AI ➔</div>
+      </a>
+
+      <!-- 7. Study Center -->
+      <a href="http://localhost:3000/study" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #FEF3C7; color: #D97706;">🎓</div>
+          <div class="card-title">7. Study Center</div>
+          <div class="card-desc">ทำแบบทดสอบ (Quizzes) พร้อมตรวจคำตอบและคำอธิบายเฉลยทันที + บัตรคำ (Flashcards) 3D Flip Card</div>
+        </div>
+        <div class="card-link">เปิด Study Center ➔</div>
+      </a>
+
+      <!-- 8. Settings -->
+      <a href="http://localhost:3000/settings" target="_blank" class="page-card">
+        <div>
+          <div class="card-icon" style="background: #F1F5F9; color: #475569;">⚙️</div>
+          <div class="card-title">8. Settings</div>
+          <div class="card-desc">จัดการข้อมูลส่วนตัว, พื้นที่คลาวด์ 500 MB (Storage meter), ปรับแต่งหน้าตาระบบ และการตั้งค่าภาษา AI</div>
+        </div>
+        <div class="card-link">เปิดการตั้งค่า ➔</div>
+      </a>
+    </div>
+
+    <!-- Interactive Mind Map Concept Preview -->
+    <div class="preview-box">
+      <div class="preview-header">
+        <div>
+          <h4>โครงสร้าง Mind Map จำลอง (React Flow Structure)</h4>
+          <span style="font-size: 12px; color: var(--text-secondary);">ตัวอย่างโครงสร้างจาก Database System.pdf ตามสเปกที่กำหนด</span>
+        </div>
+        <a href="http://localhost:3000/mindmaps/mm-1" target="_blank" class="btn btn-primary" style="padding: 8px 16px; font-size: 12px;">
+          คลิกเพื่อลากโหนดบน Canvas จริง
+        </a>
+      </div>
+
+      <div class="mindmap-diagram">
+        <!-- Root -->
+        <div class="node-root">
+          🗄️ Database System (Root Node)
+        </div>
+
+        <!-- Branches -->
+        <div class="branch-row">
+          <div class="node-branch">1. Database</div>
+          <div class="node-branch">2. DBMS</div>
+          <div class="node-branch">3. SQL</div>
+          <div class="node-branch">4. Database Design</div>
+        </div>
+
+        <!-- Subtopics -->
+        <div class="subtopic-row">
+          <div class="node-subtopic">• Data Integrity</div>
+          <div class="node-subtopic">• ACID Properties</div>
+          <div class="node-subtopic" style="border-color: #6558E8; font-weight: 600; color: #6558E8;">• SELECT</div>
+          <div class="node-subtopic" style="border-color: #6558E8; font-weight: 600; color: #6558E8;">• INSERT</div>
+          <div class="node-subtopic" style="border-color: #6558E8; font-weight: 600; color: #6558E8;">• UPDATE</div>
+          <div class="node-subtopic" style="border-color: #6558E8; font-weight: 600; color: #6558E8;">• DELETE</div>
+          <div class="node-subtopic" style="font-weight: 600;">• Primary Key</div>
+          <div class="node-subtopic" style="font-weight: 600;">• Foreign Key</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Tip Box -->
+    <div class="guide-box">
+      <div class="guide-icon">💡</div>
+      <div class="guide-content">
+        <h5>สะดวกยิ่งขึ้น! ดับเบิ้ลคลิกไฟล์ในโฟลเดอร์ได้ทันที</h5>
+        <p>
+          ในโฟลเดอร์โปรเจกต์นี้ มีไฟล์ชื่อ <code>เริ่มใช้งาน MindMap AI.bat</code> คุณสามารถดับเบิ้ลคลิกที่ไฟล์นี้เพื่อเปิดเว็บแอปพลิเคชันและรันเซิร์ฟเวอร์ได้โดยอัตโนมัติ ไม่ต้องพิมพ์คำสั่งในหน้าต่าง Terminal ครับ
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Live Server Ping Checker
+    async function checkServer() {
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+      try {
+        const res = await fetch('http://localhost:3000/dashboard', { mode: 'no-cors' });
+        text.innerText = 'เซิร์ฟเวอร์ออนไลน์พร้อมใช้งาน (Port 3000)';
+        badge.style.background = '#ECFDF5';
+        badge.style.color = '#18A979';
+        badge.style.borderColor = 'rgba(24, 169, 121, 0.3)';
+      } catch (err) {
+        text.innerText = 'ดับเบิ้ลคลิกไฟล์ "เริ่มใช้งาน MindMap AI.bat" เพื่อเริ่มระบบ';
+        badge.style.background = '#FFFBEB';
+        badge.style.color = '#D97706';
+        badge.style.borderColor = 'rgba(217, 119, 6, 0.3)';
+      }
+    }
+    checkServer();
+    setInterval(checkServer, 5000);
+  </script>
+</body>
+</html>
+
