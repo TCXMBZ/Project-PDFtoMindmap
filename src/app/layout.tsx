@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Sarabun } from "next/font/google";
+import { GlassProvider } from "@/components/layout/GlassContext";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,9 +27,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="th" className={`${inter.variable} ${sarabun.variable} h-full`}>
-      <body className="min-h-full bg-[#F7F8FC] text-[#202033] antialiased">
-        {children}
+    <html
+      lang="th"
+      data-theme="light"
+      suppressHydrationWarning
+      className={`${inter.variable} ${sarabun.variable} h-full`}
+    >
+      <body className="min-h-full bg-[var(--gw-bg)] text-[var(--gw-text)] antialiased">
+        <GlassProvider>{children}</GlassProvider>
       </body>
     </html>
   );

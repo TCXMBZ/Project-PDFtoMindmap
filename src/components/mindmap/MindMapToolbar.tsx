@@ -14,7 +14,8 @@ import {
   Share2,
   Save,
   Sparkles,
-  Edit2
+  Edit2,
+  LayoutGrid
 } from 'lucide-react';
 
 interface MindMapToolbarProps {
@@ -33,6 +34,7 @@ interface MindMapToolbarProps {
   onOpenShare: () => void;
   onAiGenerate: () => void;
   isAiGenerating: boolean;
+  onAutoLayout?: () => void;
 }
 
 export default function MindMapToolbar({
@@ -50,7 +52,8 @@ export default function MindMapToolbar({
   onOpenExport,
   onOpenShare,
   onAiGenerate,
-  isAiGenerating
+  isAiGenerating,
+  onAutoLayout
 }: MindMapToolbarProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [currentTitle, setCurrentTitle] = useState(title);
@@ -65,13 +68,14 @@ export default function MindMapToolbar({
   };
 
   return (
-    <div className="h-[64px] bg-white border-b border-[#E9E9F1] px-4 flex items-center justify-between gap-3 shrink-0 shadow-xs z-20">
+    <div className="gw-glass min-h-[56px] rounded-2xl px-3 sm:px-4 py-2 flex flex-wrap lg:flex-nowrap items-center justify-between gap-2 sm:gap-3 z-20 max-w-full">
       {/* Left: Back & Title */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <Link
           href="/mindmaps"
-          className="p-2 rounded-xl text-[#85859A] hover:text-[#202033] hover:bg-[#F7F8FC] border border-[#E9E9F1] shrink-0"
+          className="gw-button min-h-[44px] sm:min-h-[36px] min-w-[44px] sm:min-w-[36px] p-2 rounded-xl text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] shrink-0 flex items-center justify-center gap-2 cursor-pointer"
           title="กลับไปหน้ารวม Mind Maps"
+          aria-label="กลับไปหน้ารวม Mind Maps"
         >
           <ChevronLeft className="w-5 h-5" />
         </Link>
@@ -85,21 +89,25 @@ export default function MindMapToolbar({
               onBlur={handleTitleSubmit}
               onKeyDown={(e) => e.key === 'Enter' && handleTitleSubmit()}
               autoFocus
-              className="text-sm font-bold text-[#202033] px-2 py-1 rounded-lg border border-[#6558E8] outline-none"
+              className="gw-search min-h-[44px] sm:min-h-[36px] text-sm font-bold text-[var(--gw-text)] px-2.5 py-1 rounded-lg outline-none"
             />
           ) : (
             <button
-              onClick={() => setIsEditingTitle(true)}
-              className="flex items-center gap-1.5 text-sm sm:text-base font-bold text-[#202033] hover:text-[#6558E8] transition-colors truncate max-w-[200px] sm:max-w-xs md:max-w-md group"
+              type="button"
+              onClick={() => {
+                setCurrentTitle(title);
+                setIsEditingTitle(true);
+              }}
+              className="min-h-[44px] sm:min-h-[36px] flex items-center gap-2 text-sm sm:text-base font-bold text-[var(--gw-text)] hover:text-[var(--gw-accent)] transition-colors truncate max-w-[180px] sm:max-w-xs md:max-w-md group cursor-pointer"
               title="คลิกเพื่อเปลี่ยนชื่อ"
             >
               <span className="truncate">{title}</span>
-              <Edit2 className="w-3.5 h-3.5 text-[#85859A] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Edit2 className="w-3.5 h-3.5 text-[var(--gw-text-muted)] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
             </button>
           )}
 
           {/* Save status badge */}
-          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium text-[#18A979] bg-[#18A979]/10 px-2 py-0.5 rounded-full shrink-0">
+          <span className="gw-positive hidden sm:inline-flex items-center gap-1 text-[11px] font-medium px-2.5 py-0.5 rounded-full shrink-0">
             <CheckCircle2 className="w-3 h-3" />
             {isSaved ? 'บันทึกแล้ว' : 'กำลังแก้ไข...'}
           </span>
@@ -107,56 +115,80 @@ export default function MindMapToolbar({
       </div>
 
       {/* Center: Controls (Undo/Redo & Zoom) */}
-      <div className="hidden md:flex items-center gap-1 bg-[#F7F8FC] p-1 rounded-xl border border-[#E9E9F1]">
+      <div className="gw-segment flex items-center gap-1 p-1 rounded-xl">
         <button
+          type="button"
           onClick={onUndo}
           disabled={!canUndo}
-          className="p-1.5 rounded-lg text-[#85859A] hover:text-[#202033] hover:bg-white disabled:opacity-40 transition-colors"
+          className="min-h-[44px] sm:min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] disabled:opacity-40 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
           title="เลิกทำ (Undo)"
+          aria-label="เลิกทำ"
         >
           <Undo2 className="w-4 h-4" />
         </button>
         <button
+          type="button"
           onClick={onRedo}
           disabled={!canRedo}
-          className="p-1.5 rounded-lg text-[#85859A] hover:text-[#202033] hover:bg-white disabled:opacity-40 transition-colors"
+          className="min-h-[44px] sm:min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] disabled:opacity-40 transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
           title="ทำซ้ำ (Redo)"
+          aria-label="ทำซ้ำ"
         >
           <Redo2 className="w-4 h-4" />
         </button>
 
-        <div className="w-[1px] h-4 bg-[#E9E9F1] mx-1" />
+        <div className="w-[1px] h-4 bg-[var(--gw-border)] mx-1" />
 
         <button
+          type="button"
           onClick={onZoomOut}
-          className="p-1.5 rounded-lg text-[#85859A] hover:text-[#202033] hover:bg-white transition-colors"
+          className="min-h-[44px] sm:min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           title="ย่อมุมมอง (Zoom Out)"
+          aria-label="ย่อมุมมอง"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
         <button
+          type="button"
           onClick={onZoomIn}
-          className="p-1.5 rounded-lg text-[#85859A] hover:text-[#202033] hover:bg-white transition-colors"
+          className="min-h-[44px] sm:min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           title="ขยายมุมมอง (Zoom In)"
+          aria-label="ขยายมุมมอง"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
+          type="button"
           onClick={onFitView}
-          className="p-1.5 rounded-lg text-[#85859A] hover:text-[#202033] hover:bg-white transition-colors"
+          className="min-h-[44px] sm:min-h-[36px] min-w-[36px] p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] transition-colors flex items-center justify-center gap-2 cursor-pointer"
           title="จัดพอดีหน้าจอ (Fit View)"
+          aria-label="จัดพอดีหน้าจอ"
         >
           <Maximize2 className="w-4 h-4" />
         </button>
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        {onAutoLayout && (
+          <button
+            type="button"
+            onClick={onAutoLayout}
+            className="gw-button min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer"
+            title="จัดเรียงผังอัตโนมัติ"
+            aria-label="จัดเรียงผังอัตโนมัติ"
+          >
+            <LayoutGrid className="w-3.5 h-3.5 text-[var(--gw-accent)]" />
+            <span className="hidden sm:inline">จัดเรียง</span>
+          </button>
+        )}
+
         {/* AI Generate Mind Map button */}
         <button
+          type="button"
           onClick={onAiGenerate}
           disabled={isAiGenerating}
-          className="hidden lg:flex px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#6558E8] to-[#8B7CF6] text-white text-xs font-semibold hover:opacity-95 transition-all items-center gap-1.5 shadow-xs"
+          className="gw-button-primary hidden lg:flex min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold items-center gap-2 shadow-xs cursor-pointer disabled:opacity-60"
           title="จัดโครงสร้างอัตโนมัติด้วย AI"
         >
           <Sparkles className="w-3.5 h-3.5" />
@@ -164,26 +196,29 @@ export default function MindMapToolbar({
         </button>
 
         <button
+          type="button"
           onClick={onOpenExport}
-          className="px-3 py-1.5 rounded-xl border border-[#E9E9F1] bg-white hover:bg-[#F7F8FC] text-xs font-semibold text-[#4A4A68] transition-colors flex items-center gap-1.5"
+          className="gw-button min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer"
           title="ส่งออก Mind Map"
         >
-          <Download className="w-3.5 h-3.5 text-[#6558E8]" />
+          <Download className="w-3.5 h-3.5 text-[var(--gw-accent)]" />
           <span className="hidden sm:inline">Export</span>
         </button>
 
         <button
+          type="button"
           onClick={onOpenShare}
-          className="px-3 py-1.5 rounded-xl border border-[#E9E9F1] bg-white hover:bg-[#F7F8FC] text-xs font-semibold text-[#4A4A68] transition-colors flex items-center gap-1.5"
+          className="gw-button min-h-[44px] sm:min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 cursor-pointer"
           title="แชร์ลิงก์"
         >
-          <Share2 className="w-3.5 h-3.5 text-[#6558E8]" />
+          <Share2 className="w-3.5 h-3.5 text-[var(--gw-accent)]" />
           <span className="hidden sm:inline">Share</span>
         </button>
 
         <button
+          type="button"
           onClick={onSave}
-          className="px-4 py-1.5 rounded-xl bg-[#6558E8] text-white text-xs font-semibold hover:bg-[#5548D8] transition-all flex items-center gap-1.5 shadow-xs"
+          className="gw-button-primary min-h-[44px] sm:min-h-[36px] px-4 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-xs cursor-pointer"
         >
           <Save className="w-3.5 h-3.5" />
           <span>Save</span>
@@ -192,4 +227,3 @@ export default function MindMapToolbar({
     </div>
   );
 }
-

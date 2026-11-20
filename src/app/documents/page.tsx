@@ -7,7 +7,6 @@ import {
   FolderOpen,
   Upload,
   Search,
-  Filter,
   Grid,
   List,
   FileText,
@@ -15,17 +14,56 @@ import {
   File,
   Clock,
   Sparkles,
-  Trash2,
-  Download,
-  MoreVertical,
-  CheckCircle2,
-  AlertCircle,
-  FileSearch,
-  ArrowUpDown
+  Trash2
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import { mockDocuments } from '@/data/mockDocuments';
 import { DocumentItem, FileType } from '@/types';
+
+const SIZE_UNITS: Record<string, number> = {
+  B: 1,
+  KB: 1024,
+  MB: 1024 * 1024,
+  GB: 1024 * 1024 * 1024
+};
+
+function parseFileSizeToBytes(sizeStr: string): number {
+  const match = sizeStr.trim().match(/^([\d.]+)\s*(B|KB|MB|GB)$/i);
+  if (!match) return parseFloat(sizeStr) || 0;
+  const value = parseFloat(match[1]);
+  const unit = match[2].toUpperCase();
+  return value * (SIZE_UNITS[unit] ?? 1);
+}
+
+const THAI_MONTHS: Record<string, number> = {
+  'ม.ค.': 0,
+  'ก.พ.': 1,
+  'มี.ค.': 2,
+  'เม.ย.': 3,
+  'พ.ค.': 4,
+  'มิ.ย.': 5,
+  'ก.ค.': 6,
+  'ส.ค.': 7,
+  'ก.ย.': 8,
+  'ต.ค.': 9,
+  'พ.ย.': 10,
+  'ธ.ค.': 11
+};
+
+function parseDocumentDate(dateStr: string): number {
+  const parts = dateStr.trim().split(/\s+/);
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = THAI_MONTHS[parts[1]];
+    let year = parseInt(parts[2], 10);
+    if (!Number.isNaN(day) && month !== undefined && !Number.isNaN(year)) {
+      if (year > 2400) year -= 543;
+      return new Date(year, month, day).getTime();
+    }
+  }
+  const parsed = Date.parse(dateStr);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
 
 export default function DocumentsPage() {
   const router = useRouter();
@@ -34,7 +72,6 @@ export default function DocumentsPage() {
   const [selectedType, setSelectedType] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'size'>('date');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
   // Filter & Sort
   const filteredDocuments = useMemo(() => {
@@ -46,28 +83,47 @@ export default function DocumentsPage() {
       })
       .sort((a, b) => {
         if (sortBy === 'name') return a.name.localeCompare(b.name);
-        if (sortBy === 'size') return parseFloat(b.fileSize) - parseFloat(a.fileSize);
-        return 0; // date default
+        if (sortBy === 'size') {
+          return parseFileSizeToBytes(b.fileSize) - parseFileSizeToBytes(a.fileSize);
+        }
+        return parseDocumentDate(b.uploadDate) - parseDocumentDate(a.uploadDate);
       });
   }, [documents, searchQuery, selectedType, sortBy]);
 
   const handleDelete = (id: string, name: string) => {
     if (confirm(`คุณต้องการลบเอกสาร "${name}" ใช่หรือไม่?`)) {
       setDocuments((prev) => prev.filter((d) => d.id !== id));
-      setActiveMenuId(null);
     }
   };
 
   const getFileIcon = (type: FileType) => {
     switch (type) {
       case 'pdf':
-        return <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0"><FileText className="w-5 h-5" /></div>;
+        return (
+          <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-500 border border-rose-500/20 flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5" />
+          </div>
+        );
       case 'docx':
-        return <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0"><FileText className="w-5 h-5" /></div>;
+        return (
+          <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-500 border border-sky-500/20 flex items-center justify-center shrink-0">
+            <FileText className="w-5 h-5" />
+          </div>
+        );
       case 'txt':
-        return <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-600 flex items-center justify-center shrink-0"><FileCode className="w-5 h-5" /></div>;
+        return (
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-500 border border-amber-500/20 flex items-center justify-center shrink-0">
+            <FileCode className="w-5 h-5" />
+          </div>
+        );
       default:
-        return <div className="w-10 h-10 rounded-xl bg-[#F0EFFF] text-[#6558E8] flex items-center justify-center shrink-0"><File className="w-5 h-5" /></div>;
+        return (
+          <div
+            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 gw-badge"
+          >
+            <File className="w-5 h-5" />
+          </div>
+        );
     }
   };
 
@@ -75,51 +131,52 @@ export default function DocumentsPage() {
     <AppLayout>
       <div className="space-y-6 pb-12">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-[#E9E9F1] shadow-xs">
+        <div className="gw-panel gw-reveal flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl">
           <div>
-            <h1 className="text-2xl font-extrabold text-[#202033] tracking-tight">
+            <h1 className="text-2xl font-extrabold tracking-tight text-[var(--gw-text)]">
               My Documents
             </h1>
-            <p className="text-sm text-[#85859A] mt-1">
+            <p className="text-sm text-[var(--gw-text-muted)] mt-1">
               จัดการเอกสารทั้งหมด ค้นหา กรองประเภทไฟล์ และส่งต่อให้ AI สรุปสาระสำคัญ
             </p>
           </div>
 
           <Link
             href="/documents/upload"
-            className="px-5 py-2.5 rounded-xl bg-[#6558E8] text-white text-xs font-semibold hover:bg-[#5548D8] transition-all flex items-center gap-2 shadow-sm self-start sm:self-auto"
+            className="gw-button-primary px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 self-start sm:self-auto cursor-pointer"
           >
             <Upload className="w-4 h-4" />
-            + Upload Document
+            Upload Document
           </Link>
         </div>
 
         {/* Filter Controls Bar */}
-        <div className="bg-white p-4 rounded-2xl border border-[#E9E9F1] shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div className="gw-panel gw-reveal p-4 rounded-2xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
           {/* Search */}
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 text-[#85859A] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="gw-search relative flex-1 rounded-xl flex items-center">
+            <Search className="w-4 h-4 text-[var(--gw-text-muted)] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="ค้นหาเอกสารตามชื่อไฟล์..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-10 pl-9 pr-4 text-xs md:text-sm bg-[#F7F8FC] border border-[#E9E9F1] rounded-xl focus:outline-none focus:border-[#6558E8] focus:bg-white text-[#202033] placeholder-[#85859A]"
+              className="w-full h-10 pl-9 pr-4 text-xs md:text-sm bg-transparent focus:outline-none text-[var(--gw-text)] placeholder-[var(--gw-text-subtle)]"
             />
           </div>
 
           {/* Filters & Toggles */}
           <div className="flex flex-wrap items-center gap-2.5">
             {/* File Type Filter */}
-            <div className="flex items-center bg-[#F7F8FC] p-1 rounded-xl border border-[#E9E9F1] text-xs">
+            <div className="gw-segment flex items-center p-1 rounded-xl text-xs">
               {['all', 'pdf', 'docx', 'txt'].map((t) => (
                 <button
                   key={t}
+                  type="button"
                   onClick={() => setSelectedType(t)}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all uppercase ${
+                  className={`px-3 py-1.5 rounded-lg font-medium transition-all uppercase cursor-pointer ${
                     selectedType === t
-                      ? 'bg-white text-[#6558E8] shadow-xs font-semibold'
-                      : 'text-[#85859A] hover:text-[#202033]'
+                      ? 'gw-segment-active font-semibold'
+                      : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
                   }`}
                 >
                   {t === 'all' ? 'ทั้งหมด' : t}
@@ -131,33 +188,41 @@ export default function DocumentsPage() {
             <div className="relative">
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
+                onChange={(e) => setSortBy(e.target.value as 'date' | 'name' | 'size')}
                 aria-label="เรียงตาม"
-                className="h-10 px-3 pr-8 rounded-xl bg-[#F7F8FC] border border-[#E9E9F1] text-xs font-medium text-[#4A4A68] focus:outline-none focus:border-[#6558E8] cursor-pointer"
+                className="gw-button h-10 px-3 pr-8 rounded-xl text-xs font-medium text-[var(--gw-text)] focus:outline-none cursor-pointer"
               >
-                <option value="date">เรียงตามวันที่ล่าสุด</option>
-                <option value="name">เรียงตามชื่อ A-Z</option>
-                <option value="size">เรียงตามขนาดไฟล์</option>
+                <option value="date" className="bg-[var(--gw-bg)] text-[var(--gw-text)]">เรียงตามวันที่ล่าสุด</option>
+                <option value="name" className="bg-[var(--gw-bg)] text-[var(--gw-text)]">เรียงตามชื่อ A-Z</option>
+                <option value="size" className="bg-[var(--gw-bg)] text-[var(--gw-text)]">เรียงตามขนาดไฟล์</option>
               </select>
             </div>
 
             {/* View Mode Toggle */}
-            <div className="flex items-center bg-[#F7F8FC] p-1 rounded-xl border border-[#E9E9F1]">
+            <div className="gw-segment flex items-center p-1 rounded-xl">
               <button
+                type="button"
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'grid' ? 'bg-white text-[#6558E8] shadow-xs' : 'text-[#85859A]'
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  viewMode === 'grid'
+                    ? 'gw-segment-active'
+                    : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
                 }`}
                 title="Grid View"
+                aria-label="Grid View"
               >
                 <Grid className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'list' ? 'bg-white text-[#6558E8] shadow-xs' : 'text-[#85859A]'
+                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                  viewMode === 'list'
+                    ? 'gw-segment-active'
+                    : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
                 }`}
                 title="List View"
+                aria-label="List View"
               >
                 <List className="w-4 h-4" />
               </button>
@@ -168,12 +233,12 @@ export default function DocumentsPage() {
         {/* Documents Content */}
         {filteredDocuments.length === 0 ? (
           /* Empty State */
-          <div className="bg-white rounded-2xl border border-[#E9E9F1] p-12 text-center shadow-xs">
-            <div className="w-16 h-16 rounded-2xl bg-[#F0EFFF] text-[#6558E8] flex items-center justify-center mx-auto mb-4">
+          <div className="gw-panel gw-reveal rounded-2xl p-12 text-center">
+            <div className="w-16 h-16 rounded-2xl gw-badge flex items-center justify-center mx-auto mb-4">
               <FolderOpen className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-[#202033]">ไม่พบเอกสาร</h3>
-            <p className="text-xs text-[#85859A] mt-1 max-w-sm mx-auto">
+            <h3 className="text-lg font-bold text-[var(--gw-text)]">ไม่พบเอกสาร</h3>
+            <p className="text-xs text-[var(--gw-text-muted)] mt-1 max-w-sm mx-auto">
               {searchQuery
                 ? `ไม่พบไฟล์ที่ตรงกับคำค้นหา "${searchQuery}" ลองปรับคำค้นหาหรือเลือกประเภทไฟล์ใหม่`
                 : 'คุณยังไม่มีเอกสารในหมวดหมู่นี้ เริ่มต้นอัปโหลดเพื่อสรุป Mind Map ด้วย AI ได้ทันที'}
@@ -181,15 +246,16 @@ export default function DocumentsPage() {
             <div className="mt-6 flex justify-center gap-3">
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery('')}
-                  className="px-4 py-2 rounded-xl border border-[#E9E9F1] text-xs font-semibold text-[#4A4A68] hover:bg-[#F7F8FC]"
+                  className="gw-button px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer"
                 >
                   ล้างคำค้นหา
                 </button>
               )}
               <Link
                 href="/documents/upload"
-                className="px-4 py-2 rounded-xl bg-[#6558E8] text-white text-xs font-semibold hover:bg-[#5548D8] transition-colors flex items-center gap-1.5"
+                className="gw-button-primary px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Upload className="w-4 h-4" />
                 อัปโหลดไฟล์ใหม่
@@ -202,27 +268,27 @@ export default function DocumentsPage() {
             {filteredDocuments.map((doc) => (
               <div
                 key={doc.id}
-                className="bg-white rounded-2xl p-5 border border-[#E9E9F1] shadow-xs hover:shadow-md hover:border-[#6558E8]/40 transition-all flex flex-col justify-between group relative"
+                className="gw-panel gw-reveal rounded-2xl p-5 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between group relative"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
                     {getFileIcon(doc.fileType)}
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#18A979]/10 text-[#18A979]">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#18A979]" />
+                    <span className="gw-positive inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--gw-positive)]" />
                       พร้อมใช้งาน
                     </span>
                   </div>
 
-                  <h3 className="font-bold text-sm text-[#202033] group-hover:text-[#6558E8] transition-colors line-clamp-1">
+                  <h3 className="font-bold text-sm text-[var(--gw-text)] group-hover:text-[var(--gw-accent)] transition-colors line-clamp-1">
                     {doc.name}
                   </h3>
-                  <p className="text-xs text-[#85859A] mt-1 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-[var(--gw-text-muted)] mt-1 line-clamp-2 leading-relaxed">
                     {doc.overview || 'ไม่มีคำอธิบายสรุปสำหรับเอกสารนี้'}
                   </p>
                 </div>
 
-                <div className="mt-5 pt-4 border-t border-[#E9E9F1]">
-                  <div className="flex items-center justify-between text-xs text-[#85859A] mb-3">
+                <div className="mt-5 pt-4 border-t gw-divider">
+                  <div className="flex items-center justify-between text-xs text-[var(--gw-text-muted)] mb-3">
                     <span>{doc.fileSize} • {doc.pageCount} หน้า</span>
                     <span className="flex items-center gap-1 text-[11px]">
                       <Clock className="w-3 h-3" />
@@ -232,16 +298,19 @@ export default function DocumentsPage() {
 
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => router.push(`/documents/${doc.id}/analyze`)}
-                      className="flex-1 py-2 rounded-xl bg-[#F0EFFF] text-[#6558E8] font-semibold text-xs hover:bg-[#6558E8] hover:text-white transition-all flex items-center justify-center gap-1.5"
+                      className="flex-1 py-2 rounded-xl gw-badge hover:bg-[var(--gw-accent)] hover:text-white font-semibold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       Open & Analyze
                     </button>
                     <button
+                      type="button"
                       onClick={() => handleDelete(doc.id, doc.name)}
-                      className="p-2 rounded-xl text-[#85859A] hover:text-red-500 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors"
+                      className="p-2 rounded-xl text-[var(--gw-text-muted)] hover:text-[var(--gw-danger)] hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-colors cursor-pointer"
                       title="ลบเอกสาร"
+                      aria-label={`ลบเอกสาร ${doc.name}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -252,64 +321,75 @@ export default function DocumentsPage() {
           </div>
         ) : (
           /* List View Table */
-          <div className="bg-white rounded-2xl border border-[#E9E9F1] shadow-xs overflow-hidden">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="bg-[#F7F8FC] border-b border-[#E9E9F1] text-[#85859A] font-semibold">
-                  <th className="py-3.5 px-5">เอกสาร</th>
-                  <th className="py-3.5 px-4">ขนาดไฟล์</th>
-                  <th className="py-3.5 px-4">จำนวนหน้า</th>
-                  <th className="py-3.5 px-4">วันที่อัปโหลด</th>
-                  <th className="py-3.5 px-4">สถานะ</th>
-                  <th className="py-3.5 px-5 text-right">ดำเนินการ</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E9E9F1]">
-                {filteredDocuments.map((doc) => (
-                  <tr key={doc.id} className="hover:bg-[#F7F8FC]/60 transition-colors">
-                    <td className="py-3.5 px-5">
-                      <div className="flex items-center gap-3">
-                        {getFileIcon(doc.fileType)}
-                        <div>
-                          <p className="font-semibold text-sm text-[#202033]">{doc.name}</p>
-                          <span className="text-[10px] text-[#85859A] uppercase">.{doc.fileType}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-[#4A4A68]">{doc.fileSize}</td>
-                    <td className="py-3.5 px-4 text-[#4A4A68]">{doc.pageCount} หน้า</td>
-                    <td className="py-3.5 px-4 text-[#85859A]">{doc.uploadDate}</td>
-                    <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-[#18A979]/10 text-[#18A979]">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#18A979]" />
-                        พร้อมใช้งาน
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-5 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => router.push(`/documents/${doc.id}/analyze`)}
-                          className="px-3 py-1.5 rounded-lg bg-[#6558E8] text-white hover:bg-[#5548D8] text-xs font-semibold flex items-center gap-1"
-                        >
-                          <Sparkles className="w-3.5 h-3.5" />
-                          เปิดดู
-                        </button>
-                        <button
-                          onClick={() => handleDelete(doc.id, doc.name)}
-                          className="p-1.5 rounded-lg text-[#85859A] hover:text-red-500 hover:bg-red-50"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+          <div className="gw-panel gw-reveal rounded-2xl overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr
+                    className="border-b gw-divider text-[var(--gw-text-muted)] font-semibold"
+                    style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
+                  >
+                    <th className="py-3.5 px-5">เอกสาร</th>
+                    <th className="py-3.5 px-4">ขนาดไฟล์</th>
+                    <th className="py-3.5 px-4">จำนวนหน้า</th>
+                    <th className="py-3.5 px-4">วันที่อัปโหลด</th>
+                    <th className="py-3.5 px-4">สถานะ</th>
+                    <th className="py-3.5 px-5 text-right">ดำเนินการ</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y gw-divider">
+                  {filteredDocuments.map((doc) => (
+                    <tr
+                      key={doc.id}
+                      className="hover:bg-[var(--gw-accent-soft)]/40 transition-colors"
+                    >
+                      <td className="py-3.5 px-5">
+                        <div className="flex items-center gap-3">
+                          {getFileIcon(doc.fileType)}
+                          <div>
+                            <p className="font-semibold text-sm text-[var(--gw-text)]">{doc.name}</p>
+                            <span className="text-[10px] text-[var(--gw-text-muted)] uppercase">.{doc.fileType}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3.5 px-4 text-[var(--gw-text)]">{doc.fileSize}</td>
+                      <td className="py-3.5 px-4 text-[var(--gw-text)]">{doc.pageCount} หน้า</td>
+                      <td className="py-3.5 px-4 text-[var(--gw-text-muted)]">{doc.uploadDate}</td>
+                      <td className="py-3.5 px-4">
+                        <span className="gw-positive inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--gw-positive)]" />
+                          พร้อมใช้งาน
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-5 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => router.push(`/documents/${doc.id}/analyze`)}
+                            className="gw-button-primary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            เปิดดู
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(doc.id, doc.name)}
+                            className="p-1.5 rounded-lg text-[var(--gw-text-muted)] hover:text-[var(--gw-danger)] hover:bg-rose-500/10 cursor-pointer"
+                            title="ลบเอกสาร"
+                            aria-label={`ลบเอกสาร ${doc.name}`}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
     </AppLayout>
   );
 }
-

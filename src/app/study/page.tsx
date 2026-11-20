@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import {
   GraduationCap,
@@ -12,15 +12,11 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
-  Flame,
-  Clock,
-  ArrowRight,
   Play,
   RotateCw,
   HelpCircle,
   Layers,
-  ThumbsUp,
-  RefreshCw
+  ThumbsUp
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import { mockQuizzes, mockFlashcardDecks } from '@/data/mockStudy';
@@ -31,18 +27,10 @@ function StudyContent() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get('tab');
 
-  const [activeTab, setActiveTab] = useState<'quizzes' | 'flashcards'>(
-    tabParam === 'flashcards' ? 'flashcards' : 'quizzes'
-  );
-
-  // Sync tab with URL search parameter if present
-  useEffect(() => {
-    if (tabParam === 'flashcards') {
-      setActiveTab('flashcards');
-    } else if (tabParam === 'quizzes') {
-      setActiveTab('quizzes');
-    }
-  }, [tabParam]);
+  const [manualTab, setManualTab] = useState<'quizzes' | 'flashcards' | null>(null);
+  const activeTab: 'quizzes' | 'flashcards' =
+    manualTab ?? (tabParam === 'flashcards' ? 'flashcards' : 'quizzes');
+  const setActiveTab = (tab: 'quizzes' | 'flashcards') => setManualTab(tab);
 
   // Quiz Player State
   const [activeQuiz, setActiveQuiz] = useState<QuizItem | null>(null);
@@ -55,17 +43,21 @@ function StudyContent() {
   const [activeDeck, setActiveDeck] = useState<FlashcardDeck | null>(null);
   const [cardIndex, setCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [masteredCount, setMasteredCount] = useState(0);
+  const [masteredCardIds, setMasteredCardIds] = useState<Set<string>>(() => new Set());
+  const [deckFinished, setDeckFinished] = useState(false);
 
-  // Trigger confetti on good quiz completion
+  const masteredCount = masteredCardIds.size;
+
+  // Trigger confetti on good quiz/deck completion
   const triggerConfetti = () => {
     try {
       confetti({
         particleCount: 80,
         spread: 70,
-        origin: { y: 0.6 }
+        origin: { y: 0.6 },
+        disableForReducedMotion: true
       });
-    } catch (e) {
+    } catch {
       // safe fallback
     }
   };
@@ -117,17 +109,28 @@ function StudyContent() {
     setActiveDeck(deck);
     setCardIndex(0);
     setIsFlipped(false);
-    setMasteredCount(0);
+    setMasteredCardIds(new Set());
+    setDeckFinished(false);
   };
 
   const handleNextCard = (known: boolean) => {
-    if (known) setMasteredCount((c) => c + 1);
-    setIsFlipped(false);
     if (!activeDeck) return;
+    const currentCard = activeDeck.cards[cardIndex];
+    if (known && currentCard) {
+      setMasteredCardIds((prev) => {
+        const next = new Set(prev);
+        next.add(currentCard.id);
+        return next;
+      });
+    }
+    setIsFlipped(false);
     if (cardIndex < activeDeck.cards.length - 1) {
       setCardIndex((c) => c + 1);
     } else {
-      triggerConfetti();
+      setDeckFinished(true);
+      if (known) {
+        triggerConfetti();
+      }
     }
   };
 
@@ -135,46 +138,50 @@ function StudyContent() {
     <AppLayout>
       <div className="space-y-6 pb-12">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-[#E9E9F1] shadow-xs">
+        <div className="gw-panel gw-reveal flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-2xl">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#F0EFFF] text-[#6558E8]">
-                🎓 Study Center
+              <span className="gw-badge inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-0.5 rounded-full">
+                <GraduationCap className="w-3.5 h-3.5" />
+                Study Center
               </span>
             </div>
-            <h1 className="text-2xl font-extrabold text-[#202033] mt-1 tracking-tight">
+            <h1 className="text-2xl font-extrabold text-[var(--gw-text)] mt-1.5 tracking-tight">
               ศูนย์การเรียนรู้และทบทวนบทเรียน
             </h1>
-            <p className="text-sm text-[#85859A] mt-1">
+            <p className="text-sm text-[var(--gw-text-muted)] mt-1">
               ฝึกทำแบบทดสอบและทบทวนคำศัพท์ผ่านบัตรคำที่ AI สรุปจากเอกสารของคุณ
             </p>
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex items-center bg-[#F7F8FC] p-1.5 rounded-xl border border-[#E9E9F1] self-start sm:self-auto">
+          <div className="gw-segment flex items-center p-1.5 rounded-xl self-start sm:self-auto">
             <button
+              type="button"
               onClick={() => {
                 setActiveTab('quizzes');
                 setActiveQuiz(null);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'quizzes'
-                  ? 'bg-white text-[#6558E8] shadow-xs'
-                  : 'text-[#85859A] hover:text-[#202033]'
+                  ? 'gw-segment-active'
+                  : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
               }`}
             >
               <Sparkles className="w-4 h-4" />
               แบบทดสอบ (Quizzes)
             </button>
             <button
+              type="button"
               onClick={() => {
                 setActiveTab('flashcards');
                 setActiveDeck(null);
+                setDeckFinished(false);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 activeTab === 'flashcards'
-                  ? 'bg-white text-[#6558E8] shadow-xs'
-                  : 'text-[#85859A] hover:text-[#202033]'
+                  ? 'gw-segment-active'
+                  : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
               }`}
             >
               <BookOpen className="w-4 h-4" />
@@ -192,40 +199,41 @@ function StudyContent() {
                 {mockQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="bg-white rounded-2xl p-6 border border-[#E9E9F1] shadow-xs hover:shadow-md hover:border-[#6558E8]/40 transition-all flex flex-col justify-between"
+                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#F0EFFF] text-[#6558E8]">
+                        <span className="gw-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold">
                           <Sparkles className="w-3.5 h-3.5" />
                           {quiz.questionCount} ข้อคำถาม
                         </span>
                         <span
-                          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                          className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
                             quiz.difficulty === 'ง่าย'
-                              ? 'bg-emerald-50 text-emerald-600'
+                              ? 'bg-emerald-500/15 text-emerald-500 border-emerald-500/20'
                               : quiz.difficulty === 'ปานกลาง'
-                              ? 'bg-amber-50 text-amber-600'
-                              : 'bg-red-50 text-red-600'
+                              ? 'bg-amber-500/15 text-amber-500 border-amber-500/20'
+                              : 'bg-rose-500/15 text-rose-500 border-rose-500/20'
                           }`}
                         >
                           ระดับ: {quiz.difficulty}
                         </span>
                       </div>
 
-                      <h3 className="font-bold text-base text-[#202033] mt-2">
+                      <h3 className="font-bold text-base text-[var(--gw-text)] mt-2">
                         {quiz.title}
                       </h3>
-                      <p className="text-xs text-[#85859A] mt-1">
-                        อ้างอิงจากเอกสาร: <strong>{quiz.documentTitle}</strong>
+                      <p className="text-xs text-[var(--gw-text-muted)] mt-1">
+                        อ้างอิงจากเอกสาร: <strong className="text-[var(--gw-text)]">{quiz.documentTitle}</strong>
                       </p>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-[#E9E9F1] flex items-center justify-between">
-                      <span className="text-xs text-[#85859A]">สร้างโดย AI • พร้อมทำทันที</span>
+                    <div className="mt-6 pt-4 border-t gw-divider flex items-center justify-between">
+                      <span className="text-xs text-[var(--gw-text-muted)]">สร้างโดย AI • พร้อมทำทันที</span>
                       <button
+                        type="button"
                         onClick={() => handleStartQuiz(quiz)}
-                        className="px-5 py-2 rounded-xl bg-[#6558E8] text-white text-xs font-semibold hover:bg-[#5548D8] transition-all flex items-center gap-1.5 shadow-xs"
+                        className="gw-button-primary px-5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5" />
                         Start Quiz
@@ -236,34 +244,39 @@ function StudyContent() {
               </div>
             ) : quizFinished ? (
               /* Quiz Result Screen */
-              <div className="bg-white rounded-2xl border border-[#E9E9F1] p-8 max-w-xl mx-auto text-center shadow-md animate-in fade-in duration-200">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#6558E8] to-[#8B7CF6] text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+              <div className="gw-panel gw-reveal rounded-2xl p-8 max-w-xl mx-auto text-center animate-in fade-in duration-200">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--gw-accent)] text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
                   <Award className="w-8 h-8" />
                 </div>
-                <h2 className="text-2xl font-extrabold text-[#202033]">ยอดเยี่ยมมาก!</h2>
-                <p className="text-xs text-[#85859A] mt-1">คุณทำแบบทดสอบเสร็จเรียบร้อยแล้ว</p>
+                <h2 className="text-2xl font-extrabold text-[var(--gw-text)]">ยอดเยี่ยมมาก!</h2>
+                <p className="text-xs text-[var(--gw-text-muted)] mt-1">คุณทำแบบทดสอบเสร็จเรียบร้อยแล้ว</p>
 
-                <div className="my-6 p-6 rounded-2xl bg-[#F7F8FC] border border-[#E9E9F1]">
-                  <p className="text-xs text-[#85859A] font-semibold uppercase">คะแนนของคุณ</p>
-                  <p className="text-4xl font-extrabold text-[#6558E8] mt-2">
+                <div
+                  className="my-6 p-6 rounded-2xl border gw-divider"
+                  style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
+                >
+                  <p className="text-xs text-[var(--gw-text-muted)] font-semibold uppercase">คะแนนของคุณ</p>
+                  <p className="text-4xl font-extrabold text-[var(--gw-accent)] mt-2">
                     {calculateScore()} / {activeQuiz.questions.length}
                   </p>
-                  <p className="text-xs text-[#18A979] font-medium mt-1">
-                    ความแม่นยำ {(calculateScore() / activeQuiz.questions.length * 100).toFixed(0)}%
+                  <p className="text-xs text-[var(--gw-positive)] font-semibold mt-1">
+                    ความแม่นยำ {((calculateScore() / activeQuiz.questions.length) * 100).toFixed(0)}%
                   </p>
                 </div>
 
                 <div className="flex items-center justify-center gap-3">
                   <button
+                    type="button"
                     onClick={() => handleStartQuiz(activeQuiz)}
-                    className="px-5 py-2.5 rounded-xl border border-[#E9E9F1] hover:bg-[#F7F8FC] text-xs font-semibold text-[#4A4A68] flex items-center gap-1.5"
+                    className="gw-button px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                   >
                     <RotateCcw className="w-4 h-4" />
                     ทำใหม่อีกครั้ง
                   </button>
                   <button
+                    type="button"
                     onClick={() => setActiveQuiz(null)}
-                    className="px-6 py-2.5 rounded-xl bg-[#6558E8] hover:bg-[#5548D8] text-white text-xs font-semibold flex items-center gap-1.5"
+                    className="gw-button-primary px-6 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                   >
                     กลับไปรายการแบบทดสอบ
                   </button>
@@ -271,30 +284,35 @@ function StudyContent() {
               </div>
             ) : (
               /* Active Quiz Question Player */
-              <div className="bg-white rounded-2xl border border-[#E9E9F1] p-6 sm:p-8 max-w-2xl mx-auto shadow-xs">
+              <div className="gw-panel gw-reveal rounded-2xl p-6 sm:p-8 max-w-2xl mx-auto">
                 {/* Progress bar */}
-                <div className="flex items-center justify-between text-xs text-[#85859A] mb-3">
-                  <span className="font-semibold text-[#202033]">
+                <div className="flex items-center justify-between text-xs text-[var(--gw-text-muted)] mb-3">
+                  <span className="font-semibold text-[var(--gw-text)]">
                     คำถามข้อที่ {currentQuestionIndex + 1} จาก {activeQuiz.questions.length}
                   </span>
                   <button
+                    type="button"
                     onClick={() => setActiveQuiz(null)}
-                    className="hover:text-red-500 underline"
+                    className="hover:text-[var(--gw-danger)] underline cursor-pointer"
                   >
                     ออกจากการทำแบบทดสอบ
                   </button>
                 </div>
-                <div className="w-full bg-[#E9E9F1] h-2 rounded-full overflow-hidden mb-6">
+                <div
+                  className="w-full h-2 rounded-full overflow-hidden mb-6"
+                  style={{ background: 'rgba(var(--gw-surface-rgb), 0.5)' }}
+                >
                   <div
-                    className="bg-[#6558E8] h-full transition-all duration-300"
+                    className="h-full transition-all duration-300"
                     style={{
-                      width: `${((currentQuestionIndex + 1) / activeQuiz.questions.length) * 100}%`
+                      width: `${((currentQuestionIndex + 1) / activeQuiz.questions.length) * 100}%`,
+                      background: 'var(--gw-accent)'
                     }}
                   />
                 </div>
 
                 {/* Question */}
-                <h3 className="text-base sm:text-lg font-bold text-[#202033] leading-snug">
+                <h3 className="text-base sm:text-lg font-bold text-[var(--gw-text)] leading-snug">
                   {activeQuiz.questions[currentQuestionIndex].question}
                 </h3>
 
@@ -304,35 +322,44 @@ function StudyContent() {
                     const isSelected = selectedAnswers[currentQuestionIndex] === idx;
                     const isCorrect = idx === activeQuiz.questions[currentQuestionIndex].correctAnswer;
 
-                    let btnClass = 'border-[#E9E9F1] bg-[#F7F8FC] hover:border-[#6558E8] text-[#202033]';
+                    let btnClass =
+                      'border-[var(--gw-border)] hover:border-[var(--gw-accent)] text-[var(--gw-text)]';
 
                     if (showExplanation) {
                       if (isCorrect) {
-                        btnClass = 'border-[#18A979] bg-emerald-50 text-emerald-800 font-semibold ring-1 ring-[#18A979]';
+                        btnClass =
+                          'border-[var(--gw-positive)] bg-[var(--gw-positive-bg)] text-[var(--gw-positive)] font-semibold ring-1 ring-[var(--gw-positive)]';
                       } else if (isSelected && !isCorrect) {
-                        btnClass = 'border-red-400 bg-red-50 text-red-800 ring-1 ring-red-400';
+                        btnClass =
+                          'border-rose-500 bg-rose-500/15 text-rose-500 ring-1 ring-rose-500';
                       }
                     }
 
                     return (
                       <button
                         key={idx}
+                        type="button"
                         onClick={() => handleSelectOption(idx)}
                         disabled={showExplanation}
-                        className={`w-full p-4 rounded-xl border text-xs sm:text-sm text-left transition-all flex items-center justify-between gap-3 ${btnClass}`}
+                        style={
+                          !showExplanation
+                            ? { background: 'rgba(var(--gw-surface-rgb), 0.45)' }
+                            : undefined
+                        }
+                        className={`w-full p-4 rounded-xl border text-xs sm:text-sm text-left transition-all flex items-center justify-between gap-3 cursor-pointer disabled:cursor-default ${btnClass}`}
                       >
                         <div className="flex items-center gap-3">
-                          <span className="w-6 h-6 rounded-lg bg-white border border-[#E9E9F1] flex items-center justify-center text-xs font-bold shrink-0">
+                          <span className="w-6 h-6 rounded-lg gw-glass flex items-center justify-center text-xs font-bold shrink-0 text-[var(--gw-text)]">
                             {String.fromCharCode(65 + idx)}
                           </span>
                           <span>{option}</span>
                         </div>
 
                         {showExplanation && isCorrect && (
-                          <CheckCircle2 className="w-5 h-5 text-[#18A979] shrink-0" />
+                          <CheckCircle2 className="w-5 h-5 text-[var(--gw-positive)] shrink-0" />
                         )}
                         {showExplanation && isSelected && !isCorrect && (
-                          <XCircle className="w-5 h-5 text-red-500 shrink-0" />
+                          <XCircle className="w-5 h-5 text-rose-500 shrink-0" />
                         )}
                       </button>
                     );
@@ -341,12 +368,12 @@ function StudyContent() {
 
                 {/* Explanation Box */}
                 {showExplanation && (
-                  <div className="mt-5 p-4 rounded-xl bg-[#F0EFFF] border border-[#6558E8]/20 animate-in fade-in duration-200">
-                    <p className="font-bold text-xs text-[#6558E8] flex items-center gap-1.5 mb-1">
+                  <div className="mt-5 p-4 rounded-xl bg-[var(--gw-accent-soft)] border border-[var(--gw-accent)]/25 animate-in fade-in duration-200">
+                    <p className="font-bold text-xs text-[var(--gw-accent)] flex items-center gap-1.5 mb-1">
                       <HelpCircle className="w-3.5 h-3.5" />
                       คำอธิบายเฉลย:
                     </p>
-                    <p className="text-xs text-[#383852] leading-relaxed">
+                    <p className="text-xs text-[var(--gw-text)] leading-relaxed">
                       {activeQuiz.questions[currentQuestionIndex].explanation}
                     </p>
                   </div>
@@ -354,10 +381,11 @@ function StudyContent() {
 
                 {/* Next button */}
                 {showExplanation && (
-                  <div className="mt-6 pt-4 border-t border-[#E9E9F1] flex justify-end">
+                  <div className="mt-6 pt-4 border-t gw-divider flex justify-end">
                     <button
+                      type="button"
                       onClick={handleNextQuestion}
-                      className="px-6 py-2.5 rounded-xl bg-[#6558E8] hover:bg-[#5548D8] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+                      className="gw-button-primary px-6 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       {currentQuestionIndex < activeQuiz.questions.length - 1 ? (
                         <>
@@ -384,30 +412,31 @@ function StudyContent() {
                 {mockFlashcardDecks.map((deck) => (
                   <div
                     key={deck.id}
-                    className="bg-white rounded-2xl p-6 border border-[#E9E9F1] shadow-xs hover:shadow-md hover:border-[#6558E8]/40 transition-all flex flex-col justify-between"
+                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#F0EFFF] text-[#6558E8]">
+                        <span className="gw-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold">
                           <Layers className="w-3.5 h-3.5" />
                           {deck.cardCount} บัตรคำ
                         </span>
-                        <span className="text-[11px] text-[#85859A]">AI Smart Deck</span>
+                        <span className="text-[11px] text-[var(--gw-text-muted)]">AI Smart Deck</span>
                       </div>
 
-                      <h3 className="font-bold text-base text-[#202033] mt-2">
+                      <h3 className="font-bold text-base text-[var(--gw-text)] mt-2">
                         {deck.title}
                       </h3>
-                      <p className="text-xs text-[#85859A] mt-1">
-                        จากเอกสาร: <strong>{deck.documentTitle}</strong>
+                      <p className="text-xs text-[var(--gw-text-muted)] mt-1">
+                        จากเอกสาร: <strong className="text-[var(--gw-text)]">{deck.documentTitle}</strong>
                       </p>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-[#E9E9F1] flex items-center justify-between">
-                      <span className="text-xs text-[#85859A]">จำลองแบบ 3D Flip Card</span>
+                    <div className="mt-6 pt-4 border-t gw-divider flex items-center justify-between">
+                      <span className="text-xs text-[var(--gw-text-muted)]">จำลองแบบ 3D Flip Card</span>
                       <button
+                        type="button"
                         onClick={() => handleStartFlashcards(deck)}
-                        className="px-5 py-2 rounded-xl bg-[#6558E8] text-white text-xs font-semibold hover:bg-[#5548D8] transition-all flex items-center gap-1.5 shadow-xs"
+                        className="gw-button-primary px-5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
                       >
                         <BookOpen className="w-3.5 h-3.5" />
                         Start Review
@@ -416,32 +445,81 @@ function StudyContent() {
                   </div>
                 ))}
               </div>
+            ) : deckFinished ? (
+              /* Flashcard Deck Completion Screen */
+              <div className="gw-panel gw-reveal rounded-2xl p-8 max-w-xl mx-auto text-center animate-in fade-in duration-200">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--gw-accent)] text-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <Award className="w-8 h-8" />
+                </div>
+                <h2 className="text-2xl font-extrabold text-[var(--gw-text)]">ทบทวนครบทุกใบแล้ว!</h2>
+                <p className="text-xs text-[var(--gw-text-muted)] mt-1">{activeDeck.title}</p>
+
+                <div
+                  className="my-6 p-6 rounded-2xl border gw-divider"
+                  style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
+                >
+                  <p className="text-xs text-[var(--gw-text-muted)] font-semibold uppercase">บัตรคำที่จำได้</p>
+                  <p className="text-4xl font-extrabold text-[var(--gw-accent)] mt-2">
+                    {masteredCount} / {activeDeck.cards.length}
+                  </p>
+                  <p className="text-xs text-[var(--gw-positive)] font-semibold mt-1">
+                    ความเข้าใจ {activeDeck.cards.length > 0 ? ((masteredCount / activeDeck.cards.length) * 100).toFixed(0) : 0}%
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => handleStartFlashcards(activeDeck)}
+                    className="gw-button px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    ทบทวนอีกครั้ง
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setActiveDeck(null);
+                      setDeckFinished(false);
+                    }}
+                    className="gw-button-primary px-6 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    กลับไปหน้ารวมสำรับ
+                  </button>
+                </div>
+              </div>
             ) : (
               /* Active Flashcard Viewer */
               <div className="max-w-xl mx-auto space-y-5">
                 <div className="flex items-center justify-between">
                   <button
+                    type="button"
                     onClick={() => setActiveDeck(null)}
-                    className="text-xs text-[#85859A] hover:text-[#202033] flex items-center gap-1 font-semibold"
+                    className="text-xs text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] flex items-center gap-1 font-semibold cursor-pointer"
                   >
                     <ChevronLeft className="w-4 h-4" />
                     กลับไปหน้ารวมสำรับ
                   </button>
-                  <span className="text-xs font-semibold text-[#6558E8] bg-[#F0EFFF] px-3 py-1 rounded-full">
-                    บัตรที่ {cardIndex + 1} / {activeDeck.cards.length}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="gw-positive text-xs font-semibold px-2.5 py-1 rounded-full">
+                      จำได้แล้ว {masteredCount}
+                    </span>
+                    <span className="gw-badge text-xs font-semibold px-3 py-1 rounded-full">
+                      บัตรที่ {cardIndex + 1} / {activeDeck.cards.length}
+                    </span>
+                  </div>
                 </div>
 
                 {/* 3D Flip Card */}
                 <div
                   onClick={() => setIsFlipped(!isFlipped)}
-                  className="w-full h-80 rounded-2xl p-8 bg-white border border-[#E9E9F1] shadow-md hover:shadow-xl cursor-pointer transition-all duration-300 flex flex-col justify-between text-center select-none group relative overflow-hidden"
+                  className="gw-panel w-full h-80 rounded-2xl p-8 hover:border-[var(--gw-accent)] cursor-pointer transition-all duration-300 flex flex-col justify-between text-center select-none group relative overflow-hidden"
                 >
-                  <div className="flex items-center justify-between text-xs text-[#85859A]">
-                    <span className="px-2.5 py-0.5 rounded-md bg-[#F7F8FC] border border-[#E9E9F1] font-semibold text-[11px] text-[#6558E8]">
+                  <div className="flex items-center justify-between text-xs text-[var(--gw-text-muted)]">
+                    <span className="gw-badge px-2.5 py-0.5 rounded-md font-semibold text-[11px]">
                       #{activeDeck.cards[cardIndex].tag}
                     </span>
-                    <span className="flex items-center gap-1 text-[11px] text-[#6558E8] group-hover:underline">
+                    <span className="flex items-center gap-1 text-[11px] text-[var(--gw-accent)] group-hover:underline">
                       <RotateCw className="w-3.5 h-3.5" />
                       คลิกเพื่อพลิกดู{isFlipped ? 'ด้านหน้า' : 'คำอธิบาย'}
                     </span>
@@ -450,26 +528,26 @@ function StudyContent() {
                   <div className="my-auto px-4">
                     {!isFlipped ? (
                       <div className="space-y-2 animate-in fade-in">
-                        <span className="text-xs text-[#85859A] uppercase tracking-wider font-semibold">
+                        <span className="text-xs text-[var(--gw-text-muted)] uppercase tracking-wider font-semibold">
                           คำศัพท์ / หัวข้อ
                         </span>
-                        <h3 className="text-2xl sm:text-3xl font-extrabold text-[#202033]">
+                        <h3 className="text-2xl sm:text-3xl font-extrabold text-[var(--gw-text)]">
                           {activeDeck.cards[cardIndex].front}
                         </h3>
                       </div>
                     ) : (
                       <div className="space-y-2 animate-in fade-in">
-                        <span className="text-xs text-[#18A979] uppercase tracking-wider font-semibold">
+                        <span className="text-xs text-[var(--gw-positive)] uppercase tracking-wider font-semibold">
                           ความหมายและคำอธิบาย
                         </span>
-                        <p className="text-sm sm:text-base text-[#383852] leading-relaxed">
+                        <p className="text-sm sm:text-base text-[var(--gw-text)] leading-relaxed">
                           {activeDeck.cards[cardIndex].back}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  <div className="text-[11px] text-[#85859A]">
+                  <div className="text-[11px] text-[var(--gw-text-muted)]">
                     {isFlipped ? 'ด้านหลัง (คำเฉลย)' : 'ด้านหน้า (โจทย์)'}
                   </div>
                 </div>
@@ -477,16 +555,18 @@ function StudyContent() {
                 {/* Bottom Navigation Buttons */}
                 <div className="flex items-center justify-between gap-3 pt-2">
                   <button
+                    type="button"
                     onClick={() => handleNextCard(false)}
-                    className="flex-1 py-3 rounded-xl border border-[#E9E9F1] bg-white hover:bg-amber-50 hover:border-amber-300 text-xs font-semibold text-[#4A4A68] transition-colors flex items-center justify-center gap-2"
+                    className="gw-button flex-1 py-3 rounded-xl hover:border-amber-400 text-xs font-semibold flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <RotateCcw className="w-4 h-4 text-[#F4AD43]" />
+                    <RotateCcw className="w-4 h-4 text-[var(--gw-warning)]" />
                     ต้องทบทวนอีกครั้ง
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => handleNextCard(true)}
-                    className="flex-1 py-3 rounded-xl bg-[#6558E8] hover:bg-[#5548D8] text-white text-xs font-semibold transition-colors flex items-center justify-center gap-2 shadow-xs"
+                    className="gw-button-primary flex-1 py-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs cursor-pointer"
                   >
                     <ThumbsUp className="w-4 h-4" />
                     จำได้แล้ว (ถัดไป)
@@ -503,7 +583,7 @@ function StudyContent() {
 
 export default function StudyCenterPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-xs text-[#85859A]">กำลังโหลด Study Center...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-xs text-[var(--gw-text-muted)]">กำลังโหลด Study Center...</div>}>
       <StudyContent />
     </Suspense>
   );

@@ -3,16 +3,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Send,
-  Sparkles,
   Bot,
   User,
   FileText,
-  ChevronDown,
   RefreshCw,
   Copy,
   Check,
   Lightbulb,
-  CornerDownLeft
+  Sparkles
 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import { initialChatMessages, mockAiResponses } from '@/data/mockChat';
@@ -28,6 +26,7 @@ export default function ChatPage() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const msgCounterRef = useRef(1);
 
   const currentDoc = mockDocuments.find((d) => d.id === selectedDocId) || mockDocuments[0];
 
@@ -50,8 +49,9 @@ export default function ChatPage() {
     const text = (textToSend || inputText).trim();
     if (!text || isTyping) return;
 
+    const msgId = `msg-${msgCounterRef.current++}`;
     const userMsg: ChatMessage = {
-      id: `msg-${Date.now()}`,
+      id: msgId,
       sender: 'user',
       text: text,
       timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.'
@@ -65,7 +65,6 @@ export default function ChatPage() {
     setTimeout(() => {
       let replyText = mockAiResponses[text];
       if (!replyText) {
-        // Dynamic smart response based on text keywords
         if (text.includes('สรุป')) {
           replyText = mockAiResponses['สรุปเนื้อหาทั้งหมดแบบกระชับ'];
         } else if (text.includes('Key') || text.includes('คีย์')) {
@@ -77,8 +76,9 @@ export default function ChatPage() {
         }
       }
 
+      const aiMsgId = `msg-${msgCounterRef.current++}`;
       const aiMsg: ChatMessage = {
-        id: `msg-${Date.now() + 1}`,
+        id: aiMsgId,
         sender: 'ai',
         text: replyText,
         timestamp: new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.'
@@ -103,200 +103,261 @@ export default function ChatPage() {
 
   return (
     <AppLayout noPadding>
-      <div className="h-[calc(100vh-68px)] flex flex-col bg-[#F7F8FC]">
-        {/* Chat Header */}
-        <div className="h-[64px] bg-white border-b border-[#E9E9F1] px-5 sm:px-7 flex items-center justify-between shrink-0 shadow-xs z-10">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-[#6558E8] flex items-center justify-center shrink-0">
-              <Bot className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-sm text-[#202033]">AI Study Assistant</span>
-                <span className="text-[10px] font-semibold text-[#18A979] bg-[#18A979]/10 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#18A979] animate-pulse" />
-                  Active
-                </span>
+      <div className="h-[calc(100dvh-92px)] min-h-[460px] flex gap-4 p-2.5 sm:p-5">
+        {/* Document Selector Sidebar (Desktop) */}
+        <aside className="hidden lg:flex w-72 shrink-0 flex-col gw-panel gw-reveal rounded-2xl overflow-hidden">
+          <div className="p-4 border-b gw-divider flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-xl gw-badge flex items-center justify-center">
+                <FileText className="w-4 h-4" />
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-[#85859A]">
-                <FileText className="w-3.5 h-3.5 text-[#6558E8]" />
-                <span>กำลังอ้างอิง:</span>
-                <select
-                  value={selectedDocId}
-                  onChange={(e) => setSelectedDocId(e.target.value)}
-                  className="font-semibold text-[#202033] bg-transparent hover:text-[#6558E8] cursor-pointer focus:outline-none"
-                >
-                  {mockDocuments.map((doc) => (
-                    <option key={doc.id} value={doc.id}>
-                      {doc.name} ({doc.pageCount} หน้า)
-                    </option>
-                  ))}
-                </select>
+              <div>
+                <h2 className="text-xs font-bold text-[var(--gw-text)]">เอกสารอ้างอิง</h2>
+                <p className="text-[11px] text-[var(--gw-text-muted)]">{mockDocuments.length} ไฟล์พร้อมสนทนา</p>
               </div>
             </div>
           </div>
 
-          <button
-            onClick={handleClearChat}
-            className="p-2 rounded-xl text-[#85859A] hover:text-[#202033] hover:bg-[#F7F8FC] border border-[#E9E9F1] text-xs flex items-center gap-1.5"
-            title="ล้างข้อความ"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">ล้างแชท</span>
-          </button>
-        </div>
-
-        {/* Message Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-7 space-y-6 max-w-4xl mx-auto w-full">
-          {messages.map((msg) => {
-            const isAi = msg.sender === 'ai';
-            return (
-              <div
-                key={msg.id}
-                className={`flex gap-3 sm:gap-4 ${isAi ? 'items-start' : 'items-start flex-row-reverse'}`}
-              >
-                {/* Avatar */}
-                <div
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white shadow-xs ${
-                    isAi
-                      ? 'bg-gradient-to-tr from-[#6558E8] to-[#8B7CF6]'
-                      : 'bg-[#202033]'
+          <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {mockDocuments.map((doc) => {
+              const isSelected = doc.id === selectedDocId;
+              return (
+                <button
+                  key={doc.id}
+                  type="button"
+                  onClick={() => setSelectedDocId(doc.id)}
+                  className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                    isSelected
+                      ? 'bg-[var(--gw-accent-soft)] border-[var(--gw-accent)] text-[var(--gw-text)]'
+                      : 'border-transparent hover:border-[var(--gw-border)] hover:bg-[var(--gw-accent-soft)]/30 text-[var(--gw-text-muted)]'
                   }`}
                 >
-                  {isAi ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                </div>
-
-                {/* Bubble Container */}
-                <div className={`max-w-[85%] sm:max-w-[78%] space-y-1.5 ${isAi ? '' : 'text-right'}`}>
-                  <div
-                    className={`p-4 sm:p-5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line text-left ${
-                      isAi
-                        ? 'bg-white border border-[#E9E9F1] text-[#202033] shadow-xs'
-                        : 'bg-[#6558E8] text-white shadow-sm'
-                    }`}
-                  >
-                    {msg.text}
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-[var(--gw-accent-soft)] text-[var(--gw-accent)]">
+                      {doc.fileType}
+                    </span>
+                    <span className="text-[10px] text-[var(--gw-text-subtle)]">{doc.pageCount} หน้า</span>
                   </div>
+                  <p className="text-xs font-semibold text-[var(--gw-text)] line-clamp-1">{doc.name}</p>
+                  <p className="text-[11px] text-[var(--gw-text-muted)] line-clamp-2 mt-0.5 leading-relaxed">
+                    {doc.overview}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
 
-                  {/* Timestamp & copy */}
-                  <div
-                    className={`flex items-center gap-2 text-[10px] text-[#85859A] px-1 ${
-                      isAi ? 'justify-start' : 'justify-end'
-                    }`}
-                  >
-                    <span>{msg.timestamp}</span>
-                    {isAi && (
-                      <button
-                        onClick={() => handleCopy(msg.id, msg.text)}
-                        className="hover:text-[#6558E8] flex items-center gap-1"
-                      >
-                        {copiedId === msg.id ? (
-                          <>
-                            <Check className="w-3 h-3 text-[#18A979]" />
-                            <span>คัดลอกแล้ว</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>คัดลอก</span>
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
+          <div className="p-3.5 border-t gw-divider text-[11px] text-[var(--gw-text-muted)] flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--gw-accent)] shrink-0" />
+            <span>AI จะตอบคำถามโดยอ้างอิงเนื้อหาจากเอกสารที่เลือก</span>
+          </div>
+        </aside>
 
-                  {/* Suggested action buttons for initial message */}
-                  {msg.suggestedActions && msg.suggestedActions.length > 0 && (
-                    <div className="mt-3 pt-2 flex flex-wrap gap-1.5 text-left">
-                      {msg.suggestedActions.map((action, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleSend(action)}
-                          className="px-3 py-1.5 rounded-xl bg-[#F0EFFF] hover:bg-[#E7E4FE] text-[#6558E8] text-xs font-medium border border-[#6558E8]/20 transition-colors flex items-center gap-1.5"
-                        >
-                          <Lightbulb className="w-3.5 h-3.5" />
-                          {action}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Typing Indicator */}
-          {isTyping && (
-            <div className="flex gap-3 sm:gap-4 items-start">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#6558E8] to-[#8B7CF6] flex items-center justify-center shrink-0 text-white shadow-xs">
+        {/* Main Chat Container */}
+        <div className="flex-1 flex flex-col gw-panel gw-reveal rounded-2xl overflow-hidden min-w-0">
+          {/* Chat Header */}
+          <div
+            className="h-[64px] border-b gw-divider px-5 sm:px-6 flex items-center justify-between shrink-0"
+            style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl gw-badge flex items-center justify-center shrink-0">
                 <Bot className="w-5 h-5" />
               </div>
-              <div className="p-4 rounded-2xl bg-white border border-[#E9E9F1] shadow-xs flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#6558E8] animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-[#6558E8] animate-bounce [animation-delay:0.2s]" />
-                <span className="w-2 h-2 rounded-full bg-[#6558E8] animate-bounce [animation-delay:0.4s]" />
-                <span className="text-xs text-[#85859A] ml-1">AI กำลังวิเคราะห์เอกสาร...</span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-[var(--gw-text)]">AI Study Assistant</span>
+                  <span className="gw-positive text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--gw-positive)] animate-pulse" />
+                    Active
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-[var(--gw-text-muted)] truncate">
+                  <FileText className="w-3.5 h-3.5 text-[var(--gw-accent)] shrink-0" />
+                  <span className="shrink-0">กำลังอ้างอิง:</span>
+                  <select
+                    value={selectedDocId}
+                    onChange={(e) => setSelectedDocId(e.target.value)}
+                    aria-label="เลือกเอกสารอ้างอิง"
+                    className="max-w-[160px] sm:max-w-xs font-semibold text-[var(--gw-text)] bg-transparent hover:text-[var(--gw-accent)] cursor-pointer focus:outline-none truncate"
+                  >
+                    {mockDocuments.map((doc) => (
+                      <option key={doc.id} value={doc.id} className="bg-[var(--gw-bg)] text-[var(--gw-text)]">
+                        {doc.name} ({doc.pageCount} หน้า)
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Suggested questions chips above input */}
-        <div className="px-4 sm:px-6 max-w-4xl mx-auto w-full pb-2">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-[11px] font-semibold text-[#85859A] shrink-0">ถามด่วน:</span>
-            {suggestedQuestions.map((q, i) => (
-              <button
-                key={i}
-                onClick={() => handleSend(q)}
-                disabled={isTyping}
-                className="px-3 py-1 rounded-lg bg-white border border-[#E9E9F1] hover:border-[#6558E8] hover:text-[#6558E8] text-[#4A4A68] text-xs font-medium shrink-0 transition-colors shadow-2xs"
-              >
-                {q}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Input Form */}
-        <div className="p-4 sm:p-5 bg-white border-t border-[#E9E9F1] shrink-0">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSend();
-            }}
-            className="max-w-4xl mx-auto flex items-center gap-2"
-          >
-            <div className="relative flex-1">
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="พิมพ์คำถามเกี่ยวกับเอกสารนี้ หรือขอให้ AI สรุปหัวข้อย่อย..."
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                disabled={isTyping}
-                className="w-full h-12 pl-4 pr-10 text-xs sm:text-sm bg-[#F7F8FC] border border-[#E9E9F1] rounded-2xl focus:outline-none focus:border-[#6558E8] focus:bg-white text-[#202033] placeholder-[#85859A]"
-              />
             </div>
 
             <button
-              type="submit"
-              disabled={!inputText.trim() || isTyping}
-              className={`h-12 px-5 rounded-2xl text-white font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
-                inputText.trim() && !isTyping
-                  ? 'bg-[#6558E8] hover:bg-[#5548D8] shadow-sm'
-                  : 'bg-gray-300 cursor-not-allowed'
-              }`}
+              type="button"
+              onClick={handleClearChat}
+              className="gw-button px-3 py-2 rounded-xl text-xs font-medium flex items-center gap-1.5 cursor-pointer shrink-0"
+              title="ล้างข้อความ"
+              aria-label="ล้างข้อความแชท"
             >
-              <span>ส่ง</span>
-              <Send className="w-4 h-4" />
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">ล้างแชท</span>
             </button>
-          </form>
+          </div>
+
+          {/* Message Area */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+            {messages.map((msg) => {
+              const isAi = msg.sender === 'ai';
+              return (
+                <div
+                  key={msg.id}
+                  className={`flex gap-3 sm:gap-4 ${isAi ? 'items-start' : 'items-start flex-row-reverse'}`}
+                >
+                  {/* Avatar */}
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-white shadow-xs ${
+                      isAi ? 'bg-[var(--gw-accent)]' : 'bg-slate-700'
+                    }`}
+                  >
+                    {isAi ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
+                  </div>
+
+                  {/* Bubble Container */}
+                  <div className={`max-w-[85%] sm:max-w-[78%] space-y-1.5 ${isAi ? '' : 'text-right'}`}>
+                    <div
+                      className={`p-4 sm:p-5 rounded-2xl text-xs sm:text-sm leading-relaxed whitespace-pre-line text-left ${
+                        isAi
+                          ? 'gw-glass text-[var(--gw-text)]'
+                          : 'bg-[var(--gw-accent)] text-white shadow-sm'
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+
+                    {/* Timestamp & copy */}
+                    <div
+                      className={`flex items-center gap-2 text-[10px] text-[var(--gw-text-muted)] px-1 ${
+                        isAi ? 'justify-start' : 'justify-end'
+                      }`}
+                    >
+                      <span>{msg.timestamp}</span>
+                      {isAi && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(msg.id, msg.text)}
+                          className="hover:text-[var(--gw-accent)] flex items-center gap-1 cursor-pointer"
+                        >
+                          {copiedId === msg.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-[var(--gw-positive)]" />
+                              <span>คัดลอกแล้ว</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>คัดลอก</span>
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Suggested action buttons for initial message */}
+                    {msg.suggestedActions && msg.suggestedActions.length > 0 && (
+                      <div className="mt-3 pt-2 flex flex-wrap gap-1.5 text-left">
+                        {msg.suggestedActions.map((action, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleSend(action)}
+                            className="gw-badge px-3 py-1.5 rounded-xl hover:bg-[var(--gw-accent)] hover:text-white text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <Lightbulb className="w-3.5 h-3.5" />
+                            {action}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex gap-3 sm:gap-4 items-start">
+                <div className="w-9 h-9 rounded-xl bg-[var(--gw-accent)] flex items-center justify-center shrink-0 text-white shadow-xs">
+                  <Bot className="w-5 h-5" />
+                </div>
+                <div className="gw-glass p-4 rounded-2xl flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[var(--gw-accent)] animate-bounce" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--gw-accent)] animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 rounded-full bg-[var(--gw-accent)] animate-bounce [animation-delay:0.4s]" />
+                  <span className="text-xs text-[var(--gw-text-muted)] ml-1">AI กำลังวิเคราะห์เอกสาร...</span>
+                </div>
+              </div>
+            )}
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Suggested questions chips above input */}
+          <div className="px-4 sm:px-6 pb-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="text-[11px] font-semibold text-[var(--gw-text-muted)] shrink-0">ถามด่วน:</span>
+              {suggestedQuestions.map((q, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => handleSend(q)}
+                  disabled={isTyping}
+                  className="gw-button px-3 py-1 rounded-lg text-xs font-medium shrink-0 cursor-pointer disabled:opacity-50"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Input Form */}
+          <div
+            className="p-4 sm:p-5 border-t gw-divider shrink-0"
+            style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
+          >
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSend();
+              }}
+              className="flex items-center gap-2"
+            >
+              <div className="gw-search relative flex-1 rounded-2xl">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  placeholder="พิมพ์คำถามเกี่ยวกับเอกสารนี้ หรือขอให้ AI สรุปหัวข้อย่อย..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  disabled={isTyping}
+                  className="w-full h-12 pl-4 pr-4 text-xs sm:text-sm bg-transparent focus:outline-none text-[var(--gw-text)] placeholder-[var(--gw-text-subtle)]"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={!inputText.trim() || isTyping}
+                className={`h-12 px-5 rounded-2xl font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
+                  inputText.trim() && !isTyping
+                    ? 'gw-button-primary shadow-sm cursor-pointer'
+                    : 'gw-button opacity-45 cursor-not-allowed'
+                }`}
+              >
+                <span>ส่ง</span>
+                <Send className="w-4 h-4" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </AppLayout>
   );
 }
-
