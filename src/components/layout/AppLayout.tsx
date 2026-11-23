@@ -114,11 +114,7 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
 
       {/* Centered Workspace Container */}
       <div
-        className={`relative w-full mx-auto flex-1 flex flex-col gap-4 ${
-          noPadding
-            ? 'max-w-none px-2 sm:px-4 py-2 sm:py-3'
-            : 'max-w-[1320px] px-3 sm:px-5 lg:px-6 pt-3 sm:pt-5 pb-20 lg:pb-8'
-        }`}
+        className="relative w-full max-w-[1320px] mx-auto flex-1 flex flex-col gap-4 px-3 sm:px-5 lg:px-6 pt-3 sm:pt-5 pb-20 lg:pb-8"
       >
         {/* Topbar */}
         <Topbar
@@ -138,7 +134,7 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
             ref={mainRef}
             className={`gw-main gw-glass flex-1 min-w-0 rounded-3xl ${
               noPadding
-                ? 'p-0 overflow-hidden flex flex-col min-h-[calc(100dvh-84px)]'
+                ? 'p-0 overflow-hidden flex flex-col h-[calc(100dvh-136px)] min-h-[520px]'
                 : 'p-4 sm:p-6 lg:p-7'
             }`}
           >
@@ -148,11 +144,10 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
       </div>
 
       {/* Mobile Fixed Bottom Tab Bar (5 primary workspace items, 44px+ touch targets) */}
-      {!noPadding && (
-        <nav
-          aria-label="Mobile navigation"
-          className="gw-dock gw-glass lg:hidden fixed bottom-2 inset-x-3 z-20 grid grid-cols-5 gap-1 p-1 pb-[calc(0.25rem+env(safe-area-inset-bottom))] rounded-2xl"
-        >
+      <nav
+        aria-label="Mobile navigation"
+        className="gw-dock gw-glass lg:hidden fixed bottom-2 inset-x-3 z-20 grid grid-cols-5 gap-1 p-1 pb-[calc(0.25rem+env(safe-area-inset-bottom))] rounded-2xl"
+      >
           {WORKSPACE_NAV_ITEMS.slice(0, 5).map((item) => {
             const active = isRouteActive(item.href);
             const Icon = item.icon;
@@ -173,7 +168,6 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
             );
           })}
         </nav>
-      )}
 
       {/* Help Modal */}
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />

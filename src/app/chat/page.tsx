@@ -103,7 +103,7 @@ export default function ChatPage() {
 
   return (
     <AppLayout noPadding>
-      <div className="h-[calc(100dvh-92px)] min-h-[460px] flex gap-4 p-2.5 sm:p-5">
+      <div className="flex-1 min-h-0 flex gap-4 p-3 sm:p-5">
         {/* Document Selector Sidebar (Desktop) */}
         <aside className="hidden lg:flex w-72 shrink-0 flex-col gw-panel gw-reveal rounded-2xl overflow-hidden">
           <div className="p-4 border-b gw-divider flex items-center justify-between">
