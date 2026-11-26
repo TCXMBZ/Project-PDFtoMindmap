@@ -113,7 +113,7 @@ export default function SharedPage() {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setFilter(tab.id)}
-                    className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                       active
                         ? 'gw-segment-active'
                         : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -164,7 +164,7 @@ export default function SharedPage() {
                     router.push(item.href);
                   }
                 }}
-                className="gw-panel gw-reveal rounded-2xl p-5 hover:-translate-y-0.5 hover:border-[var(--gw-accent)] transition-all cursor-pointer flex flex-col justify-between group focus-visible:outline-2 focus-visible:outline-[var(--gw-accent)]"
+                className="gw-panel gw-reveal rounded-2xl p-5 hover:-translate-y-0.5 hover:border-[var(--gw-accent)] transition cursor-pointer flex flex-col justify-between group focus-visible:outline-2 focus-visible:outline-[var(--gw-accent)]"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">

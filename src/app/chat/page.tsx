@@ -126,7 +126,7 @@ export default function ChatPage() {
                   key={doc.id}
                   type="button"
                   onClick={() => setSelectedDocId(doc.id)}
-                  className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer ${
+                  className={`w-full text-left p-3 rounded-xl border transition cursor-pointer ${
                     isSelected
                       ? 'bg-[var(--gw-accent-soft)] border-[var(--gw-accent)] text-[var(--gw-text)]'
                       : 'border-transparent hover:border-[var(--gw-border)] hover:bg-[var(--gw-accent-soft)]/30 text-[var(--gw-text-muted)]'
@@ -345,7 +345,7 @@ export default function ChatPage() {
               <button
                 type="submit"
                 disabled={!inputText.trim() || isTyping}
-                className={`h-12 px-5 rounded-2xl font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 ${
+                className={`h-12 px-5 rounded-2xl font-semibold text-xs sm:text-sm transition flex items-center gap-1.5 ${
                   inputText.trim() && !isTyping
                     ? 'gw-button-primary shadow-sm cursor-pointer'
                     : 'gw-button opacity-45 cursor-not-allowed'

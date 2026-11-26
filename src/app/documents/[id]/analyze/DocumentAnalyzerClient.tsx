@@ -173,7 +173,7 @@ export default function DocumentAnalyzerClient({ id }: DocumentAnalyzerClientPro
             {/* Document Render Area */}
             <div className="flex-1 overflow-y-auto p-6 sm:p-8">
               <div
-                className="max-w-2xl mx-auto gw-glass p-8 rounded-xl transition-all"
+                className="max-w-2xl mx-auto gw-glass p-8 rounded-xl transition-transform duration-200 ease-out"
                 style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: 'top center' }}
               >
                 <div className="border-b gw-divider pb-4 mb-6">
@@ -338,7 +338,7 @@ export default function DocumentAnalyzerClient({ id }: DocumentAnalyzerClientPro
                   type="button"
                   onClick={handleGenerateMindMap}
                   disabled={isGenerating}
-                  className="gw-button-primary w-full py-3.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60"
+                  className="gw-button-primary w-full py-3.5 rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 group cursor-pointer disabled:opacity-60"
                 >
                   <GitFork className="w-4 h-4 group-hover:rotate-12 transition-transform" />
                   {isGenerating ? 'กำลังสร้างแผนผังความคิด...' : 'เปิดใน Mind Map Editor ทันที'}

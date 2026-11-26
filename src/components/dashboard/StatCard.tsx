@@ -23,7 +23,7 @@ export default function StatCard({
   iconColor = 'text-[var(--gw-accent)]',
 }: StatCardProps) {
   return (
-    <div className="gw-panel rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5">
+    <div className="gw-panel rounded-2xl p-5 transition duration-200 hover:-translate-y-0.5">
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs font-semibold text-[var(--gw-text-muted)] uppercase tracking-wider">
           {title}

@@ -86,7 +86,7 @@ export default function MindMapsListPage() {
             {filtered.map((item) => (
               <div
                 key={item.id}
-                className="gw-panel gw-reveal rounded-2xl p-5 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between group"
+                className="gw-panel gw-reveal rounded-2xl p-5 hover:border-[var(--gw-accent)] transition flex flex-col justify-between group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">

@@ -140,7 +140,7 @@ export default function DashboardPage() {
                   <FileText className="w-4 h-4 text-[var(--gw-accent)]" />
                   จัดการเอกสารทั้งหมด
                 </span>
-                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition-all" />
+                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition" />
               </Link>
               <Link
                 href="/mindmaps"
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                   <GitFork className="w-4 h-4 text-[var(--gw-accent)]" />
                   คลัง Mind Maps
                 </span>
-                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition-all" />
+                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition" />
               </Link>
               <Link
                 href="/chat"
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   <MessageSquare className="w-4 h-4 text-[var(--gw-accent)]" />
                   ถาม AI จากเอกสาร
                 </span>
-                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition-all" />
+                <ArrowRight className="w-4 h-4 text-[var(--gw-text-subtle)] group-hover:text-[var(--gw-accent)] group-hover:translate-x-0.5 transition" />
               </Link>
             </div>
           </div>

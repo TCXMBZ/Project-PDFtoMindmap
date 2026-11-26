@@ -15,7 +15,7 @@ echo [*] กำลังตั้งค่า Node.js Environment...
 set PATH=C:\Program Files\nodejs;%PATH%
 
 echo [*] กำลังเปิดเว็บเซิร์ฟเวอร์ Next.js...
-start "" cmd /c "timeout /t 3 > nul && start http://localhost:3000"
+start "" cmd /c "timeout /t 3 > nul && start http://localhost:3000/login"
 
 echo.
 echo [*] กำลังรันคำสั่ง: npm run dev

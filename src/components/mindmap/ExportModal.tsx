@@ -101,7 +101,7 @@ export default function ExportModal({ isOpen, onClose, mindMapTitle }: ExportMod
             return (
               <div
                 key={opt.id}
-                className="p-4 rounded-xl border gw-divider hover:border-[var(--gw-accent)] transition-all flex items-center justify-between gap-3 group"
+                className="p-4 rounded-xl border gw-divider hover:border-[var(--gw-accent)] transition flex items-center justify-between gap-3 group"
                 style={{ background: 'rgba(var(--gw-surface-rgb), 0.45)' }}
               >
                 <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export default function ExportModal({ isOpen, onClose, mindMapTitle }: ExportMod
                   type="button"
                   onClick={() => handleExport(opt.id)}
                   disabled={isThisDownloading}
-                  className="gw-button px-3.5 py-1.5 rounded-lg group-hover:bg-[var(--gw-accent)] group-hover:text-white group-hover:border-[var(--gw-accent)] text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer"
+                  className="gw-button px-3.5 py-1.5 rounded-lg group-hover:bg-[var(--gw-accent)] group-hover:text-white group-hover:border-[var(--gw-accent)] text-xs font-semibold transition shrink-0 flex items-center gap-1.5 cursor-pointer"
                 >
                   {isThisDownloading ? (
                     'กำลังดาวน์โหลด...'

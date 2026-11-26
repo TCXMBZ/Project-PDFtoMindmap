@@ -162,7 +162,7 @@ function StudyContent() {
                 setActiveTab('quizzes');
                 setActiveQuiz(null);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'quizzes'
                   ? 'gw-segment-active'
                   : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -178,7 +178,7 @@ function StudyContent() {
                 setActiveDeck(null);
                 setDeckFinished(false);
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'flashcards'
                   ? 'gw-segment-active'
                   : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -199,7 +199,7 @@ function StudyContent() {
                 {mockQuizzes.map((quiz) => (
                   <div
                     key={quiz.id}
-                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between"
+                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
@@ -303,7 +303,7 @@ function StudyContent() {
                   style={{ background: 'rgba(var(--gw-surface-rgb), 0.5)' }}
                 >
                   <div
-                    className="h-full transition-all duration-300"
+                    className="h-full transition-[width] duration-300 ease-out"
                     style={{
                       width: `${((currentQuestionIndex + 1) / activeQuiz.questions.length) * 100}%`,
                       background: 'var(--gw-accent)'
@@ -346,7 +346,7 @@ function StudyContent() {
                             ? { background: 'rgba(var(--gw-surface-rgb), 0.45)' }
                             : undefined
                         }
-                        className={`w-full p-4 rounded-xl border text-xs sm:text-sm text-left transition-all flex items-center justify-between gap-3 cursor-pointer disabled:cursor-default ${btnClass}`}
+                        className={`w-full p-4 rounded-xl border text-xs sm:text-sm text-left transition flex items-center justify-between gap-3 cursor-pointer disabled:cursor-default ${btnClass}`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="w-6 h-6 rounded-lg gw-glass flex items-center justify-center text-xs font-bold shrink-0 text-[var(--gw-text)]">
@@ -412,7 +412,7 @@ function StudyContent() {
                 {mockFlashcardDecks.map((deck) => (
                   <div
                     key={deck.id}
-                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between"
+                    className="gw-panel gw-reveal rounded-2xl p-6 hover:border-[var(--gw-accent)] transition flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-3">
@@ -513,7 +513,7 @@ function StudyContent() {
                 {/* 3D Flip Card */}
                 <div
                   onClick={() => setIsFlipped(!isFlipped)}
-                  className="gw-panel w-full h-80 rounded-2xl p-8 hover:border-[var(--gw-accent)] cursor-pointer transition-all duration-300 flex flex-col justify-between text-center select-none group relative overflow-hidden"
+                  className="gw-panel w-full h-80 rounded-2xl p-8 hover:border-[var(--gw-accent)] cursor-pointer transition duration-300 flex flex-col justify-between text-center select-none group relative overflow-hidden"
                 >
                   <div className="flex items-center justify-between text-xs text-[var(--gw-text-muted)]">
                     <span className="gw-badge px-2.5 py-0.5 rounded-md font-semibold text-[11px]">

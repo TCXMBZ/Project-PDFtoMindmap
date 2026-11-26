@@ -93,7 +93,7 @@ export default function ActivityChart() {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setPeriod(item.key)}
-                  className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-semibold transition ${
                     active
                       ? 'gw-segment-active'
                       : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -136,10 +136,9 @@ export default function ActivityChart() {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(var(--gw-surface-rgb), 0.92)',
+                backgroundColor: 'rgba(var(--gw-surface-rgb), 0.95)',
                 borderColor: 'var(--gw-border)',
                 color: 'var(--gw-text)',
-                backdropFilter: 'blur(12px)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 boxShadow: 'var(--gw-shadow)',

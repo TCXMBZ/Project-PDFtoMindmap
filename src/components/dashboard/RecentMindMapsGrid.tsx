@@ -62,7 +62,7 @@ export default function RecentMindMapsGrid({
                   router.push(`/mindmaps/${item.id}`);
                 }
               }}
-              className="group cursor-pointer rounded-2xl p-4 bg-[rgba(var(--gw-surface-rgb),0.45)] border border-[var(--gw-border)] hover:border-[var(--gw-accent)] hover:bg-[rgba(var(--gw-surface-rgb),0.7)] transition-all duration-200 flex flex-col justify-between gap-3 focus-visible:outline-2 focus-visible:outline-[var(--gw-accent)]"
+              className="group cursor-pointer rounded-2xl p-4 bg-[rgba(var(--gw-surface-rgb),0.45)] border border-[var(--gw-border)] hover:border-[var(--gw-accent)] hover:bg-[rgba(var(--gw-surface-rgb),0.7)] transition duration-200 flex flex-col justify-between gap-3 focus-visible:outline-2 focus-visible:outline-[var(--gw-accent)]"
             >
               <div>
                 {/* Top tag & Node count */}
@@ -109,7 +109,7 @@ export default function RecentMindMapsGrid({
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-[rgba(var(--gw-surface-rgb),0.6)] overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-[var(--gw-accent)] transition-all duration-300"
+                    className="h-full rounded-full bg-[var(--gw-accent)] transition-[width] duration-300 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>

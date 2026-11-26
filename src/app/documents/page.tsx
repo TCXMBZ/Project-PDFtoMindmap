@@ -173,7 +173,7 @@ export default function DocumentsPage() {
                   key={t}
                   type="button"
                   onClick={() => setSelectedType(t)}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all uppercase cursor-pointer ${
+                  className={`px-3 py-1.5 rounded-lg font-medium transition uppercase cursor-pointer ${
                     selectedType === t
                       ? 'gw-segment-active font-semibold'
                       : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -268,7 +268,7 @@ export default function DocumentsPage() {
             {filteredDocuments.map((doc) => (
               <div
                 key={doc.id}
-                className="gw-panel gw-reveal rounded-2xl p-5 hover:border-[var(--gw-accent)] transition-all flex flex-col justify-between group relative"
+                className="gw-panel gw-reveal rounded-2xl p-5 hover:border-[var(--gw-accent)] transition flex flex-col justify-between group relative"
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-3">
@@ -300,7 +300,7 @@ export default function DocumentsPage() {
                     <button
                       type="button"
                       onClick={() => router.push(`/documents/${doc.id}/analyze`)}
-                      className="flex-1 py-2 rounded-xl gw-badge hover:bg-[var(--gw-accent)] hover:text-white font-semibold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="flex-1 py-2 rounded-xl gw-badge hover:bg-[var(--gw-accent)] hover:text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       Open & Analyze

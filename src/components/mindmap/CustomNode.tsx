@@ -25,12 +25,12 @@ function CustomNodeComponent({ id, data, selected }: NodeProps<CustomNodeType>) 
 
   if (isRoot) {
     nodeClass =
-      'bg-[var(--gw-accent)] text-white border-2 border-[var(--gw-accent-hover)] shadow-xl ring-2 ring-[var(--gw-accent)]/30 backdrop-blur-md';
+      'bg-[var(--gw-accent)] text-white border-2 border-[var(--gw-accent-hover)] shadow-xl ring-2 ring-[var(--gw-accent)]/30';
     badgeIcon = <Database className="w-4 h-4 text-white" />;
   } else if (isBranch) {
     nodeClass = hasCustomColor
-      ? 'text-white border border-white/25 shadow-lg backdrop-blur-md'
-      : 'gw-panel text-[var(--gw-text)] border border-[var(--gw-accent)]/40 border-l-4 border-l-[var(--gw-accent)] shadow-md backdrop-blur-md';
+      ? 'text-white border border-white/25 shadow-lg'
+      : 'gw-panel [backdrop-filter:none] [-webkit-backdrop-filter:none] text-[var(--gw-text)] border border-[var(--gw-accent)]/40 border-l-4 border-l-[var(--gw-accent)] shadow-md';
     badgeIcon = (
       <FolderTree
         className={`w-3.5 h-3.5 ${hasCustomColor ? 'text-white/90' : 'text-[var(--gw-accent)]'}`}
@@ -38,13 +38,13 @@ function CustomNodeComponent({ id, data, selected }: NodeProps<CustomNodeType>) 
     );
   } else {
     nodeClass =
-      'gw-panel text-[var(--gw-text)] border-l-2 border-l-[var(--gw-accent)]/50 shadow-sm backdrop-blur-sm hover:border-[var(--gw-accent)]';
+      'gw-panel [backdrop-filter:none] [-webkit-backdrop-filter:none] text-[var(--gw-text)] border-l-2 border-l-[var(--gw-accent)]/50 shadow-sm hover:border-[var(--gw-accent)]';
     badgeIcon = <FileText className="w-3.5 h-3.5 text-[var(--gw-accent)]" />;
   }
 
   return (
     <div
-      className={`relative px-4 py-3 rounded-2xl min-w-[160px] max-w-[260px] transition-all duration-200 cursor-grab active:cursor-grabbing ${nodeClass} ${
+      className={`relative px-4 py-3 rounded-2xl min-w-[160px] max-w-[260px] transition-[box-shadow,border-color,background-color,transform] duration-200 cursor-grab active:cursor-grabbing ${nodeClass} ${
         selected ? 'ring-4 ring-[var(--gw-accent)]/55 shadow-2xl scale-105' : ''
       }`}
       style={{
@@ -56,7 +56,7 @@ function CustomNodeComponent({ id, data, selected }: NodeProps<CustomNodeType>) 
         <Handle
           type="target"
           position={Position.Left}
-          className="!w-3.5 !h-3.5 !bg-[var(--gw-accent)] !border-2 !border-[var(--gw-bg)] rounded-full touch-none transition-all duration-150 hover:scale-125 hover:ring-4 hover:ring-[var(--gw-accent)]/35"
+          className="!w-3.5 !h-3.5 !bg-[var(--gw-accent)] !border-2 !border-[var(--gw-bg)] rounded-full touch-none transition-[transform,box-shadow] duration-150 hover:scale-125 hover:ring-4 hover:ring-[var(--gw-accent)]/35"
         />
       )}
 
@@ -92,7 +92,7 @@ function CustomNodeComponent({ id, data, selected }: NodeProps<CustomNodeType>) 
       <Handle
         type="source"
         position={Position.Right}
-        className="!w-3.5 !h-3.5 !bg-[var(--gw-accent)] !border-2 !border-[var(--gw-bg)] rounded-full touch-none transition-all duration-150 hover:scale-125 hover:ring-4 hover:ring-[var(--gw-accent)]/35"
+        className="!w-3.5 !h-3.5 !bg-[var(--gw-accent)] !border-2 !border-[var(--gw-bg)] rounded-full touch-none transition-[transform,box-shadow] duration-150 hover:scale-125 hover:ring-4 hover:ring-[var(--gw-accent)]/35"
       />
 
       {selected && (

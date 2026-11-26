@@ -150,7 +150,7 @@ export default function MindMapRightPanel({
     <div
       style={{ '--panel-width': `${currentWidth}px` } as React.CSSProperties}
       className={`gw-panel rounded-2xl relative z-10 flex flex-col h-full ${
-        isResizing ? 'transition-none' : 'transition-all duration-300'
+        isResizing ? 'transition-none' : 'transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]'
       } ${isCollapsed ? 'w-12' : 'w-full md:w-[var(--panel-width)]'}`}
     >
       {/* Toggle Button */}
@@ -182,7 +182,7 @@ export default function MindMapRightPanel({
           className="hidden md:flex items-center justify-center absolute top-14 bottom-4 -left-1.5 w-3 z-20 cursor-col-resize touch-none select-none group/resize focus:outline-none"
         >
           <div
-            className={`w-1 h-10 rounded-full transition-all ${
+            className={`w-1 h-10 rounded-full transition ${
               isResizing
                 ? 'bg-[var(--gw-accent)] opacity-100 scale-y-110'
                 : 'bg-[var(--gw-border-strong)] opacity-0 group-hover/resize:opacity-100 group-focus-visible/resize:opacity-100'

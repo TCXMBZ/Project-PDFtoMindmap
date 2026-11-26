@@ -51,13 +51,16 @@ export function AdjustableGlassDashboard() {
       ) {
         return;
       }
-      gsap.from('.gw-reveal', {
+      const targets = containerRef.current?.querySelectorAll('.gw-reveal');
+      if (!targets || targets.length === 0) return;
+      gsap.set(targets, { willChange: 'transform, opacity' });
+      gsap.from(targets, {
         y: 14,
         opacity: 0,
         duration: 0.45,
-        stagger: 0.06,
+        stagger: 0.04,
         ease: 'power2.out',
-        clearProps: 'transform,opacity',
+        clearProps: 'transform,opacity,willChange',
       });
     },
     { scope: containerRef }
@@ -167,7 +170,7 @@ export function AdjustableGlassDashboard() {
                 key={preset}
                 type="button"
                 onClick={() => handlePreset(preset)}
-                className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
+                className={`cursor-pointer rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
                   activePreset === preset
                     ? 'gw-segment-active'
                     : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'

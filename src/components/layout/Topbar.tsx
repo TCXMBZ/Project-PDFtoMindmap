@@ -328,7 +328,7 @@ export default function Topbar({ onToggleMobileMenu, onOpenHelp }: TopbarProps) 
                     key={preset}
                     type="button"
                     onClick={() => handlePreset(preset)}
-                    className={`rounded-lg py-1.5 text-xs font-medium transition-all cursor-pointer ${
+                    className={`rounded-lg py-1.5 text-xs font-medium transition cursor-pointer ${
                       activePreset === preset
                         ? 'gw-segment-active text-white'
                         : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -616,6 +616,7 @@ export default function Topbar({ onToggleMobileMenu, onOpenHelp }: TopbarProps) 
                   type="button"
                   onClick={() => {
                     setIsProfileOpen(false);
+                    router.push('/login');
                   }}
                   className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-[var(--gw-danger)] hover:bg-[var(--gw-danger)]/10 rounded-xl transition-colors cursor-pointer"
                 >

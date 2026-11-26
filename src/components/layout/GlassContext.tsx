@@ -37,7 +37,7 @@ export const GLASS_LIMITS = {
 export const DEFAULT_BACKGROUND_IMAGE = '';
 
 export const DEFAULT_GLASS: GlassSettings = {
-  blur: 22,
+  blur: 16,
   opacity: 0.44,
   saturation: 150,
   tint: 0.16,
@@ -60,7 +60,7 @@ export const GLASS_PRESETS: Record<GlassPresetName, GlassSettings> = {
     ...DEFAULT_GLASS,
   },
   Solid: {
-    blur: 32,
+    blur: 24,
     opacity: 0.86,
     saturation: 115,
     tint: 0.22,

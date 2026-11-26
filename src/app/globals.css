@@ -110,16 +110,27 @@
   --font-sarabun: var(--font-sarabun), sans-serif;
 }
 
-body {
+html {
   background-color: var(--gw-bg);
-  background-image: var(--gw-wallpaper, var(--gw-bg-gradient));
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
+}
+
+body {
+  background-color: transparent;
   color: var(--gw-text);
   font-family: var(--font-sarabun), var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.25s ease, color 0.25s ease;
+  transition: color 0.25s ease;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--gw-wallpaper, var(--gw-bg-gradient));
+  background-size: cover;
+  background-position: center;
 }
 
 /* Glass Workspace Utility Classes */
@@ -154,18 +165,27 @@ body {
     var(--gw-shadow);
 }
 
+.gw-glass .gw-panel,
+.gw-panel .gw-panel,
+.gw-glass .gw-glass {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(var(--gw-tint-rgb), calc(var(--gw-tint) * 0.32)) 0%,
+      rgba(var(--gw-surface-rgb), min(0.96, calc(var(--gw-glass-opacity) * 0.88 + 0.14))) 100%
+    );
+}
+
 .gw-popover {
   background: rgba(var(--gw-surface-rgb), 0.94);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border: 1px solid var(--gw-border-strong);
   box-shadow:
     inset 0 1px 0 0 rgba(var(--gw-edge-rgb), 0.55),
     var(--gw-shadow-lg);
-}
-
-.gw-reveal {
-  will-change: transform, opacity;
 }
 
 /* Dynamic GPU-composited ambient color orbs */
@@ -175,10 +195,10 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   33% {
-    transform: translate3d(8vw, 6vh, 0) scale(1.12);
+    transform: translate3d(4vw, 3vh, 0) scale(1.06);
   }
   66% {
-    transform: translate3d(-4vw, 10vh, 0) scale(0.94);
+    transform: translate3d(-2vw, 5vh, 0) scale(0.97);
   }
 }
 
@@ -188,10 +208,10 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   40% {
-    transform: translate3d(-9vw, 8vh, 0) scale(1.15);
+    transform: translate3d(-4.5vw, 4vh, 0) scale(1.07);
   }
   75% {
-    transform: translate3d(5vw, -5vh, 0) scale(0.92);
+    transform: translate3d(2.5vw, -2.5vh, 0) scale(0.96);
   }
 }
 
@@ -201,41 +221,59 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   50% {
-    transform: translate3d(7vw, -8vh, 0) scale(1.1);
+    transform: translate3d(3.5vw, -4vh, 0) scale(1.05);
   }
 }
 
 .gw-orb {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(72px);
+  contain: strict;
+  transform: translate3d(0, 0, 0);
   will-change: transform;
   pointer-events: none;
 }
 
 .gw-orb-1 {
-  animation: gw-orb-drift-1 22s ease-in-out infinite;
+  animation: gw-orb-drift-1 34s ease-in-out infinite;
 }
 
 .gw-orb-2 {
-  animation: gw-orb-drift-2 28s ease-in-out infinite;
+  animation: gw-orb-drift-2 40s ease-in-out infinite;
 }
 
 .gw-orb-3 {
-  animation: gw-orb-drift-3 25s ease-in-out infinite;
+  animation: gw-orb-drift-3 37s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   .gw-orb {
     animation: none !important;
   }
 }
 
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --gw-glass-opacity: 0.92;
+  }
+  .gw-glass,
+  .gw-panel {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 .gw-segment {
-  background: rgba(var(--gw-surface-rgb), 0.42);
+  background: rgba(var(--gw-surface-rgb), 0.55);
   border: 1px solid var(--gw-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .gw-segment-active {
@@ -245,12 +283,10 @@ body {
 }
 
 .gw-button {
-  background: rgba(var(--gw-surface-rgb), 0.65);
+  background: rgba(var(--gw-surface-rgb), 0.74);
   color: var(--gw-text);
   border: 1px solid var(--gw-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
 }
 
 .gw-button:hover {
@@ -275,10 +311,8 @@ body {
 }
 
 .gw-search {
-  background: rgba(var(--gw-surface-rgb), 0.56);
+  background: rgba(var(--gw-surface-rgb), 0.68);
   border: 1px solid var(--gw-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -322,4 +356,46 @@ body {
   * {
     border-color: var(--gw-border);
   }
+}
+
+/*
+ * From Uiverse.io by vamsidevendrakumar - https://uiverse.io/vamsidevendrakumar/soft-shrimp-94
+ * MIT License, Copyright (c) vamsidevendrakumar (Vamsi Devendra Kumar)
+ */
+.uiverse-flip-card {
+  width: 100%;
+  min-height: 540px;
+  perspective: 1000px;
+}
+
+.uiverse-flip-card-inner {
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.999s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.uiverse-flip-card.is-flipped .uiverse-flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.uiverse-flip-card-front,
+.uiverse-flip-card-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 24px;
+}
+
+.uiverse-flip-card-front {
+  transform: rotateY(0deg);
+}
+
+.uiverse-flip-card-back {
+  transform: rotateY(180deg);
 }

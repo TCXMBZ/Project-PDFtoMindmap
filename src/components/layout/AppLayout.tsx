@@ -35,23 +35,29 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
       ) {
         return;
       }
-      const targets = mainRef.current?.querySelectorAll('.gw-reveal');
-      if (!targets || targets.length === 0) return;
+      const rawTargets = mainRef.current?.querySelectorAll('.gw-reveal');
+      if (!rawTargets || rawTargets.length === 0) return;
 
+      const viewportTargets = Array.from(rawTargets).filter(
+        (el) => el.getBoundingClientRect().top < window.innerHeight
+      );
+      if (viewportTargets.length === 0) return;
+
+      gsap.set(viewportTargets, { willChange: 'transform, opacity' });
       gsap.fromTo(
-        targets,
+        viewportTargets,
         { y: 14, opacity: 0 },
         {
           y: 0,
           opacity: 1,
           duration: 0.45,
-          stagger: 0.06,
+          stagger: 0.04,
           ease: 'power2.out',
-          clearProps: 'transform,opacity',
+          clearProps: 'transform,opacity,willChange',
         }
       );
     },
-    { scope: mainRef, dependencies: [pathname] }
+    { scope: mainRef, dependencies: [pathname], revertOnUpdate: true }
   );
 
   const isRouteActive = (href: string) => {
@@ -156,7 +162,7 @@ export default function AppLayout({ children, noPadding = false }: AppLayoutProp
                 key={item.href}
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`min-h-[44px] flex flex-col items-center justify-center gap-0.5 px-1 py-1 rounded-xl text-[10px] font-medium transition-all cursor-pointer ${
+                className={`min-h-[44px] flex flex-col items-center justify-center gap-0.5 px-1 py-1 rounded-xl text-[10px] font-medium transition cursor-pointer ${
                   active
                     ? 'gw-segment-active text-white'
                     : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'

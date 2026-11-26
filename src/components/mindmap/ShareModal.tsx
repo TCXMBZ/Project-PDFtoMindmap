@@ -81,7 +81,7 @@ export default function ShareModal({ isOpen, onClose, mindMapTitle }: ShareModal
               <button
                 type="button"
                 onClick={() => setAccessLevel('view')}
-                className={`py-2 px-3 rounded-lg font-medium transition-all cursor-pointer ${
+                className={`py-2 px-3 rounded-lg font-medium transition cursor-pointer ${
                   accessLevel === 'view'
                     ? 'gw-segment-active font-semibold'
                     : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'
@@ -92,7 +92,7 @@ export default function ShareModal({ isOpen, onClose, mindMapTitle }: ShareModal
               <button
                 type="button"
                 onClick={() => setAccessLevel('edit')}
-                className={`py-2 px-3 rounded-lg font-medium transition-all cursor-pointer ${
+                className={`py-2 px-3 rounded-lg font-medium transition cursor-pointer ${
                   accessLevel === 'edit'
                     ? 'gw-segment-active font-semibold'
                     : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)]'

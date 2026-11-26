@@ -100,7 +100,7 @@ export default function Sidebar({
                 aria-label={item.label}
                 aria-current={active ? 'page' : undefined}
                 title={item.label}
-                className={`group relative w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gw-accent)] ${
+                className={`group relative w-11 h-11 rounded-xl flex items-center justify-center transition duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gw-accent)] ${
                   active
                     ? 'gw-segment-active text-white'
                     : 'text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)]'
@@ -109,7 +109,7 @@ export default function Sidebar({
                 <Icon className="w-[18px] h-[18px] transition-transform duration-200 group-hover:scale-105" />
                 <span
                   role="tooltip"
-                  className="pointer-events-none absolute left-full ml-3 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 translate-x-[-4px] group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition-all duration-150 gw-panel text-[var(--gw-text)] z-40"
+                  className="pointer-events-none absolute left-full ml-3 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 translate-x-[-4px] group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition duration-150 gw-panel text-[var(--gw-text)] z-40"
                 >
                   {item.label}
                 </span>
@@ -126,12 +126,12 @@ export default function Sidebar({
             onClick={onOpenHelp}
             aria-label="Help Center"
             title="Help Center"
-            className="group relative w-11 h-11 rounded-xl flex items-center justify-center text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] transition-all duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gw-accent)]"
+            className="group relative w-11 h-11 rounded-xl flex items-center justify-center text-[var(--gw-text-muted)] hover:text-[var(--gw-text)] hover:bg-[var(--gw-accent-soft)] transition duration-200 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--gw-accent)]"
           >
             <HelpCircle className="w-[18px] h-[18px]" />
             <span
               role="tooltip"
-              className="pointer-events-none absolute left-full ml-3 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 translate-x-[-4px] group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition-all duration-150 gw-panel text-[var(--gw-text)] z-40"
+              className="pointer-events-none absolute left-full ml-3 px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap opacity-0 translate-x-[-4px] group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition duration-150 gw-panel text-[var(--gw-text)] z-40"
             >
               Help Center
             </span>
