@@ -19,6 +19,7 @@ import {
   RotateCw,
 } from 'lucide-react';
 import { mockUser } from '@/data/mockUser';
+import GoogleSignInButton from './GoogleSignInButton';
 
 export default function FlipAuthCard() {
   const router = useRouter();
@@ -133,14 +134,14 @@ export default function FlipAuthCard() {
 
             <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[var(--gw-text)]">อีเมลสถาบันการศึกษา</label>
+                <label className="text-xs font-semibold text-[var(--gw-text)]">อีเมล</label>
                 <div className="gw-search relative rounded-xl">
                   <Mail className="w-4 h-4 text-[var(--gw-text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     value={loginEmail}
                     onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="student@college.ac.th"
+                    placeholder="email@gmail.com"
                     className="w-full h-11 pl-10 pr-4 text-xs sm:text-sm bg-transparent text-[var(--gw-text)] placeholder-[var(--gw-text-subtle)] focus:outline-none rounded-xl"
                   />
                 </div>
@@ -211,29 +212,17 @@ export default function FlipAuthCard() {
           </div>
 
           {/* Demo & Flip Footer */}
-          <div className="pt-4 mt-4 border-t border-[var(--gw-border)] space-y-2.5">
-            <div className="grid grid-cols-2 gap-2.5">
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={isLoading}
-                className="gw-button h-10 px-3 rounded-xl text-[11px] font-semibold text-[var(--gw-text)] flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[var(--gw-accent)]" />
-                บัญชีนักศึกษา (Demo)
-              </button>
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={isLoading}
-                className="gw-button h-10 px-3 rounded-xl text-[11px] font-semibold text-[var(--gw-text)] flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span className="w-4 h-4 rounded-full bg-white text-[#4285F4] font-bold text-[10px] flex items-center justify-center shadow-2xs">
-                  G
-                </span>
-                Google SSO
-              </button>
-            </div>
+          <div className="pt-4 mt-4 border-t border-[var(--gw-border)] flex flex-col items-center gap-2.5">
+            <GoogleSignInButton onClick={handleDemoLogin} disabled={isLoading} />
+            <button
+              type="button"
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="gw-button w-full max-w-[320px] h-9 px-3 rounded-lg text-[11px] font-semibold text-[var(--gw-text)] flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[var(--gw-accent)]" />
+              เข้าสู่ระบบด้วยบัญชีนักศึกษา (Demo)
+            </button>
           </div>
         </div>
 
@@ -282,21 +271,21 @@ export default function FlipAuthCard() {
                     type="text"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
-                    placeholder="เช่น ธนพัฒน์ วงศ์สว่าง"
+                    placeholder="Username"
                     className="w-full h-10 pl-10 pr-4 text-xs sm:text-sm bg-transparent text-[var(--gw-text)] placeholder-[var(--gw-text-subtle)] focus:outline-none rounded-xl"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-[var(--gw-text)]">อีเมลสถาบันการศึกษา</label>
+                <label className="text-xs font-semibold text-[var(--gw-text)]">อีเมล</label>
                 <div className="gw-search relative rounded-xl">
                   <Mail className="w-4 h-4 text-[var(--gw-text-muted)] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     value={regEmail}
                     onChange={(e) => setRegEmail(e.target.value)}
-                    placeholder="student@college.ac.th"
+                    placeholder="email@gmail.com"
                     className="w-full h-10 pl-10 pr-4 text-xs sm:text-sm bg-transparent text-[var(--gw-text)] placeholder-[var(--gw-text-subtle)] focus:outline-none rounded-xl"
                   />
                 </div>
@@ -344,15 +333,18 @@ export default function FlipAuthCard() {
             </form>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-[var(--gw-border)] text-center text-[11px] text-[var(--gw-text-muted)]">
-            มีบัญชีอยู่แล้ว?{' '}
-            <button
-              type="button"
-              onClick={() => handleFlip(false)}
-              className="font-bold text-[var(--gw-accent)] hover:underline cursor-pointer"
-            >
-              พลิกกลับไปหน้าเข้าสู่ระบบ
-            </button>
+          <div className="pt-4 mt-4 border-t border-[var(--gw-border)] flex flex-col items-center gap-3 text-center text-[11px] text-[var(--gw-text-muted)]">
+            <GoogleSignInButton onClick={handleDemoLogin} disabled={isLoading} />
+            <div>
+              มีบัญชีอยู่แล้ว?{' '}
+              <button
+                type="button"
+                onClick={() => handleFlip(false)}
+                className="font-bold text-[var(--gw-accent)] hover:underline cursor-pointer"
+              >
+                พลิกกลับไปหน้าเข้าสู่ระบบ
+              </button>
+            </div>
           </div>
         </div>
       </div>

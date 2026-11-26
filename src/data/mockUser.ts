@@ -1,8 +1,8 @@
 import { UserProfile, NotificationItem } from '@/types';
 
 export const mockUser: UserProfile = {
-  name: 'ธนพัฒน์ วงศ์สว่าง',
-  email: 'thanapat.w@student.ac.th',
+  name: 'Username',
+  email: 'email@gmail.com',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
   plan: 'Student Plan',
   storageUsed: '42.5 MB',

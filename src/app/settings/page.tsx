@@ -187,7 +187,7 @@ function SettingsContent() {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-[var(--gw-text-muted)]">
-                  อีเมลสถาบันการศึกษา
+                  อีเมล
                 </label>
                 <input
                   type="email"
